@@ -1,0 +1,36 @@
+{/* COURSE FILE — not part of figma/sds. See COURSE-NOTES.md. */}
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Getting started" />
+
+# Simple Design System, mirrored
+
+This is [Figma's Simple Design System](https://github.com/figma/sds) (SDS), exactly as Figma publishes it. The components, the tokens and the stories below **Foundations** are theirs, untouched. Three things were added on top, as new files only:
+
+- this page and the **Foundations** pages,
+- a Figma library built *from this code*, with names that match it,
+- a list of everything the code does that Figma cannot express (`figma/GAPS.md`).
+
+## Read it in this order
+
+**Foundations** first: Colour, Typography, Size and effects. These pages read `src/theme.css` directly, so they cannot go stale.
+
+**SDS Primitives** second. Open the Controls panel and change props. The Figma components use the same prop names and the same values, so `variant=neutral` here is `variant=neutral` there.
+
+**SDS Compositions** last: cards, forms, headers. This is where you see whether the primitives hold together on a page.
+
+## Two token tiers
+
+**Primitives** say what a value is: `--sds-color-brand-800`, `--sds-size-space-300`, `--sds-typography-scale-03`.
+
+**Semantic tokens** say what a value is for: `--sds-color-background-brand-default`, `--sds-typography-body-size-medium`. Each one points at a primitive, and colour does so twice, once for light and once for dark.
+
+Components use semantic colours, and use `size` values directly. In Figma the same split shows up as collections: *Color Primitives* and *Typography Primitives* are hidden from the pickers, *Color*, *Size* and *Typography* are what a designer chooses from.
+
+## Dark mode
+
+SDS follows the operating system (`prefers-color-scheme`). There is no theme switch in the toolbar, because the code has none to flip. Change your system appearance and every page here follows.
+
+## Where this differs from Figma's own file
+
+Figma publishes a Community file for SDS, and their scripts pull tokens *out of* that file into code. This setup runs the other way: the code is the source, and the Figma library follows it. `COURSE-NOTES.md` in the repository explains how updates from Figma's repository come in without breaking that.

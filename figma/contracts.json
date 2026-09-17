@@ -1,0 +1,2374 @@
+{
+  "Button": {
+    "page": "Button",
+    "source": "src/ui/primitives/Button/Button.tsx",
+    "props": {
+      "variant": [
+        "primary",
+        "neutral",
+        "subtle"
+      ],
+      "size": [
+        "medium",
+        "small"
+      ],
+      "isDisabled": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "Button",
+      "p": {
+        "$props": true
+      },
+      "k": [
+        {
+          "c": "IconArrowLeft",
+          "layer": "iconStart"
+        },
+        "Label",
+        {
+          "c": "IconArrowRight",
+          "layer": "iconEnd"
+        }
+      ]
+    },
+    "text": {
+      "children": "Label"
+    },
+    "bool": {
+      "hasIconStart": "iconStart",
+      "hasIconEnd": "iconEnd"
+    },
+    "swap": {
+      "iconStart": "iconStart",
+      "iconEnd": "iconEnd"
+    },
+    "boolDefaults": {
+      "hasIconStart": false,
+      "hasIconEnd": false
+    },
+    "cols": 3,
+    "description": "Contract — src/ui/primitives/Button/Button.tsx: variant=primary|neutral|subtle (default primary), size=medium|small (default medium), isDisabled=false|true (default false). children is the label. Icons are children too, not props: <Button><IconArrowLeft />Label</Button>. hasIconStart / hasIconEnd show them, iconStart / iconEnd swap them. With href the same component renders a link."
+  },
+  "ButtonDanger": {
+    "page": "Button",
+    "source": "src/ui/primitives/Button/Button.tsx",
+    "props": {
+      "variant": [
+        "danger-primary",
+        "danger-subtle"
+      ],
+      "size": [
+        "medium",
+        "small"
+      ],
+      "isDisabled": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "ButtonDanger",
+      "p": {
+        "$props": true
+      },
+      "k": [
+        {
+          "c": "IconArrowLeft",
+          "layer": "iconStart"
+        },
+        "Label",
+        {
+          "c": "IconArrowRight",
+          "layer": "iconEnd"
+        }
+      ]
+    },
+    "text": {
+      "children": "Label"
+    },
+    "bool": {
+      "hasIconStart": "iconStart",
+      "hasIconEnd": "iconEnd"
+    },
+    "swap": {
+      "iconStart": "iconStart",
+      "iconEnd": "iconEnd"
+    },
+    "boolDefaults": {
+      "hasIconStart": false,
+      "hasIconEnd": false
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Button/Button.tsx (ButtonDanger): variant=danger-primary|danger-subtle (default danger-primary), size=medium|small (default medium), isDisabled=false|true (default false). Only for destructive actions. children, icons: as Button."
+  },
+  "IconButton": {
+    "page": "Button",
+    "source": "src/ui/primitives/IconButton/IconButton.tsx",
+    "props": {
+      "variant": [
+        "primary",
+        "neutral",
+        "subtle"
+      ],
+      "size": [
+        "medium",
+        "small"
+      ],
+      "isDisabled": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "IconButton",
+      "p": {
+        "$props": true,
+        "aria-label": "Label"
+      },
+      "k": [
+        {
+          "c": "IconActivity",
+          "layer": "children"
+        }
+      ]
+    },
+    "swap": {
+      "children": "children"
+    },
+    "hiddenText": {
+      "aria-label": "Label"
+    },
+    "cols": 3,
+    "description": "Contract — src/ui/primitives/IconButton/IconButton.tsx: variant=primary|neutral|subtle (default primary), size=medium|small (default medium), isDisabled=false|true (default false). children is the icon (swap it). aria-label is required and renders nothing: it lives on a hidden text layer so the name travels with the frame."
+  },
+  "DestructiveIconButton": {
+    "page": "Button",
+    "source": "src/ui/primitives/IconButton/IconButton.tsx",
+    "props": {
+      "variant": [
+        "danger-primary",
+        "danger-subtle"
+      ],
+      "size": [
+        "medium",
+        "small"
+      ],
+      "isDisabled": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "DestructiveIconButton",
+      "p": {
+        "$props": true,
+        "aria-label": "Label"
+      },
+      "k": [
+        {
+          "c": "IconTrash",
+          "layer": "children"
+        }
+      ]
+    },
+    "swap": {
+      "children": "children"
+    },
+    "hiddenText": {
+      "aria-label": "Label"
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/IconButton/IconButton.tsx (DestructiveIconButton): variant=danger-primary|danger-subtle (default danger-primary), size=medium|small (default medium), isDisabled=false|true (default false). children is the icon. aria-label: as IconButton."
+  },
+  "ButtonGroup": {
+    "page": "Button",
+    "source": "src/ui/primitives/Button/Button.tsx",
+    "width": 320,
+    "props": {
+      "align": [
+        "start",
+        "center",
+        "end",
+        "justify",
+        "stack"
+      ]
+    },
+    "mirror": {
+      "c": "ButtonGroup",
+      "p": {
+        "$props": true
+      },
+      "k": [
+        {
+          "c": "Button",
+          "p": {
+            "variant": "neutral"
+          },
+          "k": [
+            "Cancel"
+          ],
+          "inst": {
+            "set": "Button",
+            "props": {
+              "variant": "neutral",
+              "children": "Cancel"
+            }
+          }
+        },
+        {
+          "c": "Button",
+          "p": {
+            "variant": "primary"
+          },
+          "k": [
+            "Submit"
+          ],
+          "inst": {
+            "set": "Button",
+            "props": {
+              "variant": "primary",
+              "children": "Submit"
+            }
+          }
+        }
+      ]
+    },
+    "cols": 1,
+    "description": "Contract — src/ui/primitives/Button/Button.tsx (ButtonGroup): align=start|center|end|justify|stack (default start). children are Buttons: real Button instances here, so their own properties stay editable."
+  },
+  "Tag": {
+    "page": "Tag",
+    "source": "src/ui/primitives/Tag/Tag.tsx",
+    "props": {
+      "scheme": [
+        "brand",
+        "danger",
+        "positive",
+        "warning",
+        "neutral"
+      ],
+      "variant": [
+        "primary",
+        "secondary"
+      ]
+    },
+    "mirror": {
+      "c": "Tag",
+      "p": {
+        "$props": true,
+        "onRemove": "$noop"
+      },
+      "k": [
+        "Label"
+      ]
+    },
+    "text": {
+      "children": "Label"
+    },
+    "bool": {
+      "onRemove": "tag-remove-button"
+    },
+    "boolDefaults": {
+      "onRemove": false
+    },
+    "cols": 5,
+    "description": "Contract — src/ui/primitives/Tag/Tag.tsx: scheme=brand|danger|positive|warning|neutral (default brand), variant=primary|secondary (default primary). children is the label. onRemove (a function in code) shows the remove button."
+  },
+  "TagButton": {
+    "page": "Tag",
+    "source": "src/ui/primitives/Tag/Tag.tsx",
+    "props": {
+      "scheme": [
+        "brand",
+        "danger",
+        "positive",
+        "warning",
+        "neutral"
+      ],
+      "variant": [
+        "primary",
+        "secondary"
+      ]
+    },
+    "mirror": {
+      "c": "TagButton",
+      "p": {
+        "$props": true
+      },
+      "k": [
+        "Label"
+      ]
+    },
+    "text": {
+      "children": "Label"
+    },
+    "cols": 5,
+    "description": "Contract — src/ui/primitives/Tag/Tag.tsx (TagButton): scheme=brand|danger|positive|warning|neutral (default brand), variant=primary|secondary (default primary). A tag you can press; with href it renders a link."
+  },
+  "TagToggle": {
+    "page": "Tag",
+    "source": "src/ui/primitives/Tag/Tag.tsx",
+    "root": ".tag-toggle",
+    "virtual": [
+      "isSelected",
+      "isDisabled"
+    ],
+    "props": {
+      "isSelected": [
+        false,
+        true
+      ],
+      "isDisabled": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "TagToggleGroup",
+      "p": {
+        "selectionMode": "single",
+        "aria-label": "Tags",
+        "defaultSelectedKeys": {
+          "$map": "isSelected",
+          "true": [
+            "a"
+          ],
+          "false": []
+        },
+        "disabledKeys": {
+          "$map": "isDisabled",
+          "true": [
+            "a"
+          ],
+          "false": []
+        }
+      },
+      "k": [
+        {
+          "c": "TagToggleList",
+          "k": [
+            {
+              "c": "TagToggle",
+              "p": {
+                "id": "a",
+                "iconStart": {
+                  "c": "IconCheck",
+                  "layer": "iconStart"
+                }
+              },
+              "k": [
+                "Label"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "text": {
+      "children": "Label"
+    },
+    "bool": {
+      "hasIconStart": "iconStart"
+    },
+    "swap": {
+      "iconStart": "iconStart"
+    },
+    "boolDefaults": {
+      "hasIconStart": false
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Tag/Tag.tsx (TagToggle): isSelected and isDisabled are states the surrounding TagToggleGroup decides (selectedKeys, disabledKeys), named as React Aria names them. iconStart is a prop: hasIconStart shows it, iconStart swaps it. children is the label."
+  },
+  "InputField": {
+    "page": "Input",
+    "source": "src/ui/primitives/Input/Input.tsx",
+    "width": 320,
+    "virtual": [
+      "hasValue"
+    ],
+    "props": {
+      "hasValue": [
+        false,
+        true
+      ],
+      "isDisabled": [
+        false,
+        true
+      ],
+      "isInvalid": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "InputField",
+      "p": {
+        "$props": true,
+        "label": "Label",
+        "description": "Description",
+        "errorMessage": "Error message",
+        "placeholder": "Placeholder",
+        "defaultValue": {
+          "$map": "hasValue",
+          "true": "Value",
+          "false": ""
+        }
+      }
+    },
+    "text": {
+      "label": "Label",
+      "description": "Description",
+      "errorMessage": "Error message",
+      "placeholder": "Placeholder",
+      "value": "Value"
+    },
+    "bool": {
+      "hasLabel": "label",
+      "hasDescription": "description"
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Input/Input.tsx (InputField): isDisabled, isInvalid (React Aria TextField props, default false). label, description, placeholder, errorMessage are string props; hasLabel / hasDescription show the optional parts. hasValue=false shows the placeholder, true the value (defaultValue). errorMessage only renders while isInvalid."
+  },
+  "TextareaField": {
+    "page": "Textarea",
+    "source": "src/ui/primitives/Textarea/Textarea.tsx",
+    "width": 320,
+    "virtual": [
+      "hasValue"
+    ],
+    "props": {
+      "hasValue": [
+        false,
+        true
+      ],
+      "isDisabled": [
+        false,
+        true
+      ],
+      "isInvalid": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "TextareaField",
+      "p": {
+        "$props": true,
+        "label": "Label",
+        "description": "Description",
+        "errorMessage": "Error message",
+        "placeholder": "Placeholder",
+        "defaultValue": {
+          "$map": "hasValue",
+          "true": "Value",
+          "false": ""
+        }
+      }
+    },
+    "text": {
+      "label": "Label",
+      "description": "Description",
+      "errorMessage": "Error message",
+      "placeholder": "Placeholder",
+      "value": "Value"
+    },
+    "bool": {
+      "hasLabel": "label",
+      "hasDescription": "description"
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Textarea/Textarea.tsx (TextareaField): isDisabled, isInvalid (default false). label, description, placeholder, errorMessage are string props; hasLabel / hasDescription show the optional parts. hasValue=false shows the placeholder, true the value."
+  },
+  "SelectField": {
+    "page": "Select",
+    "source": "src/ui/primitives/Select/Select.tsx",
+    "width": 320,
+    "virtual": [
+      "hasValue"
+    ],
+    "props": {
+      "hasValue": [
+        false,
+        true
+      ],
+      "isDisabled": [
+        false,
+        true
+      ],
+      "isInvalid": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "SelectField",
+      "p": {
+        "$props": true,
+        "label": "Label",
+        "description": "Description",
+        "errorMessage": "Error message",
+        "placeholder": "Placeholder",
+        "defaultSelectedKey": {
+          "$map": "hasValue",
+          "true": "a",
+          "false": null
+        }
+      },
+      "k": [
+        {
+          "c": "SelectItem",
+          "p": {
+            "id": "a"
+          },
+          "k": [
+            "Value"
+          ]
+        },
+        {
+          "c": "SelectItem",
+          "p": {
+            "id": "b"
+          },
+          "k": [
+            "Option 2"
+          ]
+        }
+      ]
+    },
+    "text": {
+      "label": "Label",
+      "description": "Description",
+      "errorMessage": "Error message",
+      "placeholder": "Placeholder",
+      "value": "Value"
+    },
+    "bool": {
+      "hasLabel": "label",
+      "hasDescription": "description"
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Select/Select.tsx (SelectField), closed. isDisabled, isInvalid (default false). label, description, placeholder, errorMessage are string props. hasValue=false shows the placeholder, true the selected item's text. The open list is ListBox with SelectItem."
+  },
+  "CheckboxField": {
+    "page": "Checkbox",
+    "source": "src/ui/primitives/Checkbox/Checkbox.tsx",
+    "width": 320,
+    "props": {
+      "isSelected": [
+        false,
+        true
+      ],
+      "isIndeterminate": [
+        false,
+        true
+      ],
+      "isDisabled": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "CheckboxField",
+      "p": {
+        "$props": true,
+        "label": "Label",
+        "description": "Description"
+      }
+    },
+    "text": {
+      "label": "Label",
+      "description": "Description"
+    },
+    "bool": {
+      "hasDescription": "description"
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Checkbox/Checkbox.tsx (CheckboxField): isSelected=false|true, isIndeterminate=false|true, isDisabled=false|true (React Aria props, default false). label and description are string props; hasDescription shows the description. In code the dash only shows when isSelected and isIndeterminate are both true, so isIndeterminate alone is not drawn.",
+    "skip": [
+      {
+        "isSelected": false,
+        "isIndeterminate": true
+      }
+    ]
+  },
+  "SwitchField": {
+    "page": "Switch",
+    "source": "src/ui/primitives/Switch/Switch.tsx",
+    "width": 320,
+    "props": {
+      "isSelected": [
+        false,
+        true
+      ],
+      "isDisabled": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "SwitchField",
+      "p": {
+        "$props": true,
+        "label": "Label",
+        "description": "Description"
+      }
+    },
+    "text": {
+      "label": "Label",
+      "description": "Description"
+    },
+    "bool": {
+      "hasDescription": "description"
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Switch/Switch.tsx (SwitchField): isSelected=false|true, isDisabled=false|true (React Aria props, default false). label and description are string props; hasDescription shows the description."
+  },
+  "RadioField": {
+    "page": "Radio",
+    "source": "src/ui/primitives/Radio/Radio.tsx",
+    "width": 320,
+    "root": ".radio-field",
+    "virtual": [
+      "isSelected"
+    ],
+    "props": {
+      "isSelected": [
+        false,
+        true
+      ],
+      "isDisabled": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "RadioGroup",
+      "p": {
+        "aria-label": "Group",
+        "defaultValue": {
+          "$map": "isSelected",
+          "true": "a",
+          "false": ""
+        }
+      },
+      "k": [
+        {
+          "c": "RadioField",
+          "p": {
+            "value": "a",
+            "label": "Label",
+            "description": "Description",
+            "isDisabled": "$isDisabled"
+          }
+        }
+      ]
+    },
+    "text": {
+      "label": "Label",
+      "description": "Description"
+    },
+    "bool": {
+      "hasDescription": "description"
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Radio/Radio.tsx (RadioField): isDisabled is a prop; isSelected is decided by the RadioGroup around it (its value), named as React Aria names the state. label and description are string props; hasDescription shows the description."
+  },
+  "SliderField": {
+    "page": "Slider",
+    "source": "src/ui/primitives/Slider/Slider.tsx",
+    "width": 320,
+    "props": {
+      "isDisabled": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "SliderField",
+      "p": {
+        "$props": true,
+        "label": "Label",
+        "description": "Description",
+        "showOutput": true,
+        "defaultValue": [
+          50
+        ]
+      }
+    },
+    "text": {
+      "label": "Label",
+      "description": "Description"
+    },
+    "bool": {
+      "hasLabel": "label",
+      "showOutput": "slider-output",
+      "hasDescription": "description"
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Slider/Slider.tsx (SliderField): isDisabled=false|true. label, description are string props, showOutput shows the value. The thumb sits at defaultValue=50 of 0–100; resize the track fill on an instance for another value. Two values (a range) are not drawn."
+  },
+  "Search": {
+    "page": "Search",
+    "source": "src/ui/primitives/Search/Search.tsx",
+    "width": 320,
+    "props": {},
+    "mirror": {
+      "c": "Search",
+      "p": {
+        "placeholder": "Placeholder",
+        "aria-label": "Search"
+      }
+    },
+    "insts": {
+      ".icon-button": {
+        "set": "IconButton",
+        "props": {
+          "variant": "subtle",
+          "size": "small",
+          "children": "IconSearch"
+        }
+      }
+    },
+    "text": {
+      "placeholder": "Placeholder"
+    },
+    "description": "Contract — src/ui/primitives/Search/Search.tsx: placeholder is the hint. The button is the library's IconButton (subtle, small): IconSearch while empty, IconX once something is typed. results (the suggestion list) opens as ListBox and is not drawn here."
+  },
+  "NavigationPill": {
+    "page": "Navigation",
+    "source": "src/ui/primitives/Navigation/Navigation.tsx",
+    "props": {
+      "isSelected": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "NavigationPill",
+      "p": {
+        "$props": true,
+        "href": "#"
+      },
+      "k": [
+        "Label"
+      ]
+    },
+    "text": {
+      "children": "Label"
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Navigation/Navigation.tsx (NavigationPill): isSelected=false|true (default false). children is the label. With href it renders a link, without it a button."
+  },
+  "NavigationButton": {
+    "page": "Navigation",
+    "source": "src/ui/primitives/Navigation/Navigation.tsx",
+    "props": {
+      "direction": [
+        "column",
+        "row"
+      ],
+      "size": [
+        "medium",
+        "small"
+      ],
+      "isSelected": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "NavigationButton",
+      "p": {
+        "$props": true,
+        "href": "#",
+        "icon": {
+          "c": "IconHome",
+          "p": {
+            "size": "24"
+          },
+          "layer": "icon"
+        }
+      },
+      "k": [
+        "Label"
+      ]
+    },
+    "text": {
+      "children": "Label"
+    },
+    "bool": {
+      "hasIcon": "icon"
+    },
+    "swap": {
+      "icon": "icon"
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Navigation/Navigation.tsx (NavigationButton): direction=column|row (default column), size=medium|small (default medium), isSelected=false|true. icon is a prop: hasIcon shows it, icon swaps it. children is the label."
+  },
+  "Navigation": {
+    "page": "Navigation",
+    "source": "src/ui/primitives/Navigation/Navigation.tsx",
+    "props": {
+      "direction": [
+        "row",
+        "column"
+      ]
+    },
+    "mirror": {
+      "c": "Navigation",
+      "p": {
+        "$props": true
+      },
+      "k": [
+        {
+          "c": "NavigationPill",
+          "p": {
+            "href": "#",
+            "isSelected": true
+          },
+          "k": [
+            "Home"
+          ],
+          "inst": {
+            "set": "NavigationPill",
+            "props": {
+              "isSelected": true,
+              "children": "Home"
+            }
+          }
+        },
+        {
+          "c": "NavigationPill",
+          "p": {
+            "href": "#",
+            "isSelected": false
+          },
+          "k": [
+            "Products"
+          ],
+          "inst": {
+            "set": "NavigationPill",
+            "props": {
+              "isSelected": false,
+              "children": "Products"
+            }
+          }
+        },
+        {
+          "c": "NavigationPill",
+          "p": {
+            "href": "#",
+            "isSelected": false
+          },
+          "k": [
+            "Contact"
+          ],
+          "inst": {
+            "set": "NavigationPill",
+            "props": {
+              "isSelected": false,
+              "children": "Contact"
+            }
+          }
+        }
+      ]
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Navigation/Navigation.tsx: direction=row|column (default row). children are NavigationPill or NavigationButton: real instances here."
+  },
+  "Avatar": {
+    "page": "Avatar",
+    "source": "src/ui/primitives/Avatar/Avatar.tsx",
+    "virtual": [
+      "hasImage"
+    ],
+    "props": {
+      "size": [
+        "medium",
+        "small",
+        "large"
+      ],
+      "square": [
+        false,
+        true
+      ],
+      "hasImage": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "Avatar",
+      "p": {
+        "$props": true,
+        "initials": "AB",
+        "src": {
+          "$map": "hasImage",
+          "true": "$placeholder",
+          "false": null
+        }
+      }
+    },
+    "text": {
+      "initials": "AB"
+    },
+    "cols": 3,
+    "description": "Contract — src/ui/primitives/Avatar/Avatar.tsx: size=small|medium|large (default medium), square=false|true (default false). hasImage=true stands for a src; without one the initials show. AvatarButton looks the same and is pressable."
+  },
+  "AvatarGroup": {
+    "page": "Avatar",
+    "source": "src/ui/primitives/Avatar/Avatar.tsx",
+    "props": {
+      "spacing": [
+        "200",
+        "100",
+        "300",
+        "negative-100",
+        "negative-200",
+        "negative-300"
+      ]
+    },
+    "mirror": {
+      "c": "AvatarGroup",
+      "p": {
+        "$props": true,
+        "max": 3
+      },
+      "k": [
+        {
+          "c": "Avatar",
+          "p": {
+            "initials": "AB"
+          },
+          "inst": {
+            "set": "Avatar",
+            "props": {
+              "initials": "AB"
+            }
+          }
+        },
+        {
+          "c": "Avatar",
+          "p": {
+            "initials": "CD"
+          },
+          "inst": {
+            "set": "Avatar",
+            "props": {
+              "initials": "CD"
+            }
+          }
+        },
+        {
+          "c": "Avatar",
+          "p": {
+            "initials": "EF"
+          },
+          "inst": {
+            "set": "Avatar",
+            "props": {
+              "initials": "EF"
+            }
+          }
+        },
+        {
+          "c": "Avatar",
+          "p": {
+            "initials": "GH"
+          },
+          "inst": {
+            "set": "Avatar",
+            "props": {
+              "initials": "GH"
+            }
+          }
+        },
+        {
+          "c": "Avatar",
+          "p": {
+            "initials": "IJ"
+          },
+          "inst": {
+            "set": "Avatar",
+            "props": {
+              "initials": "IJ"
+            }
+          }
+        }
+      ]
+    },
+    "cols": 3,
+    "text": {
+      "overflow": "+2"
+    },
+    "description": "Contract — src/ui/primitives/Avatar/Avatar.tsx (AvatarGroup): spacing=100|200|300|negative-100|negative-200|negative-300 (default 200), max (default 3) is how many avatars show before the rest collapse into +n. children are Avatars: real instances here."
+  },
+  "AvatarBlock": {
+    "page": "Avatar",
+    "source": "src/ui/primitives/Avatar/Avatar.tsx",
+    "props": {},
+    "width": 280,
+    "mirror": {
+      "c": "AvatarBlock",
+      "p": {
+        "title": "Full Name",
+        "description": "Description"
+      },
+      "k": [
+        {
+          "c": "Avatar",
+          "p": {
+            "initials": "AB",
+            "size": "large"
+          },
+          "inst": {
+            "set": "Avatar",
+            "props": {
+              "size": "large",
+              "initials": "AB"
+            }
+          }
+        }
+      ]
+    },
+    "text": {
+      "title": "Full Name",
+      "description": "Description"
+    },
+    "bool": {
+      "hasDescription": "description"
+    },
+    "description": "Contract — src/ui/primitives/Avatar/Avatar.tsx (AvatarBlock): title (required), description (optional; hasDescription shows it). children is an Avatar or AvatarButton."
+  },
+  "Notification": {
+    "page": "Notification",
+    "source": "src/ui/primitives/Notification/Notification.tsx",
+    "width": 480,
+    "props": {
+      "variant": [
+        "message",
+        "alert"
+      ]
+    },
+    "mirror": {
+      "c": "Notification",
+      "p": {
+        "$props": true,
+        "isDismissible": true,
+        "icon": {
+          "c": "IconInfo",
+          "p": {
+            "size": "20"
+          },
+          "layer": "icon"
+        }
+      },
+      "k": [
+        {
+          "c": "TextStrong",
+          "k": [
+            "Title"
+          ]
+        },
+        {
+          "c": "Text",
+          "k": [
+            "Body text"
+          ]
+        }
+      ]
+    },
+    "insts": {
+      ".notification-variant-message > .icon-button": {
+        "set": "IconButton",
+        "layer": "isDismissible",
+        "props": {
+          "variant": "subtle",
+          "size": "small",
+          "children": "IconX"
+        }
+      },
+      ".notification-variant-alert > .icon-button": {
+        "set": "DestructiveIconButton",
+        "layer": "isDismissible",
+        "props": {
+          "variant": "danger-subtle",
+          "size": "small",
+          "children": "IconX"
+        }
+      }
+    },
+    "text": {
+      "title": "Title",
+      "body": "Body text"
+    },
+    "bool": {
+      "hasIcon": "notification-icon",
+      "isDismissible": "isDismissible"
+    },
+    "swap": {
+      "icon": "icon"
+    },
+    "cols": 1,
+    "description": "Contract — src/ui/primitives/Notification/Notification.tsx: variant=message|alert (default message), isDismissible shows the dismiss button (an IconButton; DestructiveIconButton for alert), icon is a prop (hasIcon / icon). children are free content: here a TextStrong title and a Text body."
+  },
+  "AccordionItem": {
+    "page": "Accordion",
+    "source": "src/ui/primitives/Accordion/Accordion.tsx",
+    "width": 480,
+    "root": ".accordion-item",
+    "virtual": [
+      "isExpanded"
+    ],
+    "props": {
+      "isExpanded": [
+        false,
+        true
+      ]
+    },
+    "mirror": {
+      "c": "Accordion",
+      "k": [
+        {
+          "c": "AccordionItem",
+          "p": {
+            "title": "Title",
+            "defaultExpanded": "$isExpanded"
+          },
+          "k": [
+            "Content"
+          ]
+        }
+      ]
+    },
+    "text": {
+      "title": "Title",
+      "children": "Content"
+    },
+    "cols": 1,
+    "description": "Contract — src/ui/primitives/Accordion/Accordion.tsx (AccordionItem): title is a prop, children the panel content. isExpanded is React Aria's Disclosure state (defaultExpanded in code). Note: AccordionItem takes isExpanded and isDisabled out of its props and never passes them on, so in code they do nothing."
+  },
+  "Accordion": {
+    "page": "Accordion",
+    "source": "src/ui/primitives/Accordion/Accordion.tsx",
+    "width": 480,
+    "props": {},
+    "mirror": {
+      "c": "Accordion",
+      "p": {
+        "allowsMultipleExpanded": true
+      },
+      "k": [
+        {
+          "c": "AccordionItem",
+          "p": {
+            "title": "Title",
+            "defaultExpanded": true
+          },
+          "k": [
+            "Content"
+          ],
+          "inst": {
+            "set": "AccordionItem",
+            "props": {
+              "isExpanded": true,
+              "title": "Title"
+            }
+          }
+        },
+        {
+          "c": "AccordionItem",
+          "p": {
+            "title": "Title 2",
+            "defaultExpanded": false
+          },
+          "k": [
+            "Content"
+          ],
+          "inst": {
+            "set": "AccordionItem",
+            "props": {
+              "isExpanded": false,
+              "title": "Title 2"
+            }
+          }
+        },
+        {
+          "c": "AccordionItem",
+          "p": {
+            "title": "Title 3",
+            "defaultExpanded": false
+          },
+          "k": [
+            "Content"
+          ],
+          "inst": {
+            "set": "AccordionItem",
+            "props": {
+              "isExpanded": false,
+              "title": "Title 3"
+            }
+          }
+        }
+      ]
+    },
+    "description": "Contract — src/ui/primitives/Accordion/Accordion.tsx: a group of AccordionItem, real instances here. allowsMultipleExpanded (React Aria DisclosureGroup) lets more than one stay open."
+  },
+  "Tab": {
+    "page": "Tabs",
+    "source": "src/ui/primitives/Tab/Tab.tsx",
+    "root": ".tab",
+    "virtual": [
+      "isSelected",
+      "isDisabled"
+    ],
+    "props": {
+      "isSelected": [
+        false,
+        true
+      ],
+      "isDisabled": [
+        false,
+        true
+      ]
+    },
+    "skip": [
+      {
+        "isSelected": true,
+        "isDisabled": true
+      }
+    ],
+    "mirror": {
+      "c": "Tabs",
+      "p": {
+        "defaultSelectedKey": {
+          "$map": "isSelected",
+          "true": "a",
+          "false": "b"
+        },
+        "disabledKeys": {
+          "$map": "isDisabled",
+          "true": [
+            "a"
+          ],
+          "false": []
+        }
+      },
+      "k": [
+        {
+          "c": "TabList",
+          "p": {
+            "aria-label": "Tabs"
+          },
+          "k": [
+            {
+              "c": "Tab",
+              "p": {
+                "id": "a"
+              },
+              "k": [
+                "Label"
+              ]
+            },
+            {
+              "c": "Tab",
+              "p": {
+                "id": "b"
+              },
+              "k": [
+                "Other"
+              ]
+            }
+          ]
+        },
+        {
+          "c": "TabPanel",
+          "p": {
+            "id": "a"
+          },
+          "k": [
+            "Panel"
+          ]
+        },
+        {
+          "c": "TabPanel",
+          "p": {
+            "id": "b"
+          },
+          "k": [
+            "Panel"
+          ]
+        }
+      ]
+    },
+    "text": {
+      "children": "Label"
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Tab/Tab.tsx (Tab): isSelected and isDisabled are decided by the Tabs around it (selectedKey, disabledKeys), named as React Aria names the state. children is the label."
+  },
+  "Tabs": {
+    "page": "Tabs",
+    "source": "src/ui/primitives/Tab/Tab.tsx",
+    "width": 480,
+    "props": {},
+    "mirror": {
+      "c": "Tabs",
+      "p": {
+        "defaultSelectedKey": "a"
+      },
+      "k": [
+        {
+          "c": "TabList",
+          "p": {
+            "aria-label": "Tabs"
+          },
+          "k": [
+            {
+              "c": "Tab",
+              "p": {
+                "id": "a"
+              },
+              "k": [
+                "Tab one"
+              ],
+              "inst": {
+                "set": "Tab",
+                "props": {
+                  "isSelected": true,
+                  "children": "Tab one"
+                }
+              }
+            },
+            {
+              "c": "Tab",
+              "p": {
+                "id": "b"
+              },
+              "k": [
+                "Tab two"
+              ],
+              "inst": {
+                "set": "Tab",
+                "props": {
+                  "isSelected": false,
+                  "children": "Tab two"
+                }
+              }
+            },
+            {
+              "c": "Tab",
+              "p": {
+                "id": "c"
+              },
+              "k": [
+                "Tab three"
+              ],
+              "inst": {
+                "set": "Tab",
+                "props": {
+                  "isSelected": false,
+                  "children": "Tab three"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "c": "TabPanel",
+          "p": {
+            "id": "a"
+          },
+          "k": [
+            "Panel content"
+          ]
+        },
+        {
+          "c": "TabPanel",
+          "p": {
+            "id": "b"
+          },
+          "k": [
+            "Panel content"
+          ]
+        },
+        {
+          "c": "TabPanel",
+          "p": {
+            "id": "c"
+          },
+          "k": [
+            "Panel content"
+          ]
+        }
+      ]
+    },
+    "text": {
+      "panel": "Panel content"
+    },
+    "description": "Contract — src/ui/primitives/Tab/Tab.tsx (Tabs, TabList, TabPanel): the tabs are real Tab instances. To move the selection, set isSelected on the tabs; in code that is selectedKey on Tabs."
+  },
+  "$insts": {
+    ".button.icon-button[class*='button-variant-danger']": {
+      "set": "DestructiveIconButton",
+      "props": {
+        "variant": "$class:button-variant-",
+        "size": "$class:button-size-",
+        "isDisabled": "$attr:data-disabled",
+        "children": "$icon:svg"
+      }
+    },
+    ".button.icon-button": {
+      "set": "IconButton",
+      "props": {
+        "variant": "$class:button-variant-",
+        "size": "$class:button-size-",
+        "isDisabled": "$attr:data-disabled",
+        "children": "$icon:svg"
+      }
+    },
+    ".button[class*='button-variant-danger']": {
+      "set": "ButtonDanger",
+      "props": {
+        "variant": "$class:button-variant-",
+        "size": "$class:button-size-",
+        "isDisabled": "$attr:data-disabled",
+        "children": "$text",
+        "hasIconStart": "$iconStart?",
+        "iconStart": "$iconStart",
+        "hasIconEnd": "$iconEnd?",
+        "iconEnd": "$iconEnd"
+      }
+    },
+    ".button": {
+      "set": "Button",
+      "props": {
+        "variant": "$class:button-variant-",
+        "size": "$class:button-size-",
+        "isDisabled": "$attr:data-disabled",
+        "children": "$text",
+        "hasIconStart": "$iconStart?",
+        "iconStart": "$iconStart",
+        "hasIconEnd": "$iconEnd?",
+        "iconEnd": "$iconEnd"
+      }
+    },
+    ".avatar": {
+      "set": "Avatar",
+      "props": {
+        "size": "$class:avatar-size-",
+        "square": "$hasClass:avatar-shape-square",
+        "hasImage": "$hasClass:avatar-image",
+        "initials": "$text"
+      }
+    },
+    ".tag:not(.tag-toggle):not(.tag-button)": {
+      "set": "Tag",
+      "props": {
+        "scheme": "$class:tag-scheme-",
+        "variant": "$class:tag-variant-",
+        "children": "$text",
+        "onRemove": "$has:.tag-remove-button"
+      }
+    },
+    ".field:has(> .input)": {
+      "set": "InputField",
+      "props": {
+        "isDisabled": "$attr:data-disabled",
+        "isInvalid": "$attr:data-invalid",
+        "label": "$text:.label",
+        "hasLabel": "$has:.label",
+        "description": "$text:.description",
+        "hasDescription": "$has:.description",
+        "placeholder": "$attrval:input|placeholder"
+      }
+    },
+    ".field:has(> .text-area)": {
+      "set": "TextareaField",
+      "props": {
+        "isDisabled": "$attr:data-disabled",
+        "label": "$text:.label",
+        "hasLabel": "$has:.label",
+        "description": "$text:.description",
+        "hasDescription": "$has:.description",
+        "placeholder": "$attrval:textarea|placeholder"
+      }
+    },
+    ".select-container": {
+      "set": "SelectField",
+      "props": {
+        "isDisabled": "$attr:data-disabled",
+        "label": "$text:.label",
+        "hasLabel": "$has:.label",
+        "description": "$text:.description",
+        "hasDescription": "$has:.description",
+        "placeholder": "$text:.select-value"
+      }
+    },
+    ".checkbox-field": {
+      "set": "CheckboxField",
+      "props": {
+        "isSelected": "$attr:data-selected",
+        "isDisabled": "$attr:data-disabled",
+        "label": "$text:.label",
+        "description": "$text:.description",
+        "hasDescription": "$has:.description"
+      }
+    },
+    ".radio-field": {
+      "set": "RadioField",
+      "props": {
+        "isSelected": "$attr:data-selected",
+        "isDisabled": "$attr:data-disabled",
+        "label": "$text:.label",
+        "description": "$text:.description",
+        "hasDescription": "$has:.description"
+      }
+    },
+    ".switch-field": {
+      "set": "SwitchField",
+      "props": {
+        "isSelected": "$attr:data-selected",
+        "isDisabled": "$attr:data-disabled",
+        "label": "$text:.label",
+        "description": "$text:.description",
+        "hasDescription": "$has:.description"
+      }
+    }
+  },
+  "MenuItem": {
+    "page": "Menu",
+    "source": "src/ui/primitives/Menu/Menu.tsx",
+    "root": ".menu-item",
+    "virtual": [
+      "isDisabled"
+    ],
+    "props": {
+      "isDisabled": [
+        false,
+        true
+      ]
+    },
+    "width": 280,
+    "mirror": {
+      "c": "Menu",
+      "p": {
+        "aria-label": "Menu",
+        "disabledKeys": {
+          "$map": "isDisabled",
+          "true": [
+            "a"
+          ],
+          "false": []
+        }
+      },
+      "k": [
+        {
+          "c": "MenuItem",
+          "p": {
+            "id": "a"
+          },
+          "k": [
+            {
+              "c": "IconStar",
+              "layer": "icon"
+            },
+            {
+              "c": "MenuLabel",
+              "k": [
+                "Label"
+              ]
+            },
+            {
+              "c": "MenuDescription",
+              "k": [
+                "Description"
+              ]
+            },
+            {
+              "c": "MenuShortcut",
+              "k": [
+                "⌘K"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "text": {
+      "label": "Label",
+      "description": "Description"
+    },
+    "bool": {
+      "hasIcon": "icon",
+      "hasDescription": "menu-description",
+      "hasShortcut": "menu-shortcut"
+    },
+    "swap": {
+      "icon": "icon"
+    },
+    "cols": 1,
+    "description": "Contract — src/ui/primitives/Menu/Menu.tsx (MenuItem): isDisabled is decided by the Menu around it (disabledKeys). children are free: an icon, MenuLabel, MenuDescription and MenuShortcut here, each switchable."
+  },
+  "Menu": {
+    "page": "Menu",
+    "source": "src/ui/primitives/Menu/Menu.tsx",
+    "width": 280,
+    "props": {},
+    "mirror": {
+      "c": "Menu",
+      "p": {
+        "aria-label": "Menu"
+      },
+      "k": [
+        {
+          "c": "MenuHeader",
+          "k": [
+            {
+              "c": "MenuHeading",
+              "k": [
+                "Heading"
+              ]
+            }
+          ]
+        },
+        {
+          "c": "MenuSection",
+          "k": [
+            {
+              "c": "MenuItem",
+              "p": {
+                "id": "a"
+              },
+              "k": [
+                {
+                  "c": "IconStar"
+                },
+                {
+                  "c": "MenuLabel",
+                  "k": [
+                    "Label"
+                  ]
+                },
+                {
+                  "c": "MenuDescription",
+                  "k": [
+                    "Description"
+                  ]
+                },
+                {
+                  "c": "MenuShortcut",
+                  "k": [
+                    "⌘K"
+                  ]
+                }
+              ],
+              "inst": {
+                "set": "MenuItem",
+                "props": {
+                  "label": "Label",
+                  "description": "Description"
+                }
+              }
+            },
+            {
+              "c": "MenuItem",
+              "p": {
+                "id": "b"
+              },
+              "k": [
+                {
+                  "c": "IconStar"
+                },
+                {
+                  "c": "MenuLabel",
+                  "k": [
+                    "Label 2"
+                  ]
+                },
+                {
+                  "c": "MenuDescription",
+                  "k": [
+                    "Description"
+                  ]
+                },
+                {
+                  "c": "MenuShortcut",
+                  "k": [
+                    "⌘K"
+                  ]
+                }
+              ],
+              "inst": {
+                "set": "MenuItem",
+                "props": {
+                  "label": "Label 2",
+                  "description": "Description"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "c": "MenuSeparator"
+        },
+        {
+          "c": "MenuSection",
+          "k": [
+            {
+              "c": "MenuItem",
+              "p": {
+                "id": "c"
+              },
+              "k": [
+                {
+                  "c": "IconStar"
+                },
+                {
+                  "c": "MenuLabel",
+                  "k": [
+                    "Label 3"
+                  ]
+                },
+                {
+                  "c": "MenuDescription",
+                  "k": [
+                    "Description"
+                  ]
+                },
+                {
+                  "c": "MenuShortcut",
+                  "k": [
+                    "⌘K"
+                  ]
+                }
+              ],
+              "inst": {
+                "set": "MenuItem",
+                "props": {
+                  "label": "Label 3",
+                  "description": "Description"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "text": {
+      "heading": "Heading"
+    },
+    "description": "Contract — src/ui/primitives/Menu/Menu.tsx (Menu, MenuHeader, MenuHeading, MenuSection, MenuSeparator): the list that MenuButton or MenuTrigger opens. Items are real MenuItem instances. The popover around it (position, shadow placement) only exists at runtime."
+  },
+  "Dialog": {
+    "page": "Dialog",
+    "source": "src/ui/primitives/Dialog/Dialog.tsx",
+    "root": ".dialog",
+    "props": {
+      "type": [
+        "card",
+        "sheet"
+      ]
+    },
+    "wait": 900,
+    "mirror": {
+      "c": "DialogModal",
+      "p": {
+        "isOpen": true
+      },
+      "k": [
+        {
+          "c": "Dialog",
+          "p": {
+            "$props": true
+          },
+          "k": [
+            {
+              "c": "DialogClose"
+            },
+            {
+              "c": "DialogTitle",
+              "k": [
+                "Title"
+              ]
+            },
+            {
+              "c": "DialogDescription",
+              "k": [
+                "Description text for the dialog."
+              ]
+            },
+            {
+              "c": "ButtonGroup",
+              "p": {
+                "align": "end"
+              },
+              "k": [
+                {
+                  "c": "Button",
+                  "p": {
+                    "variant": "subtle"
+                  },
+                  "k": [
+                    "Cancel"
+                  ]
+                },
+                {
+                  "c": "Button",
+                  "k": [
+                    "Confirm"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "text": {
+      "title": "Title",
+      "description": "Description text for the dialog."
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Dialog/Dialog.tsx (Dialog with DialogClose, DialogTitle, DialogDescription): type=card|sheet (default card). The close button and the actions are real IconButton and Button instances. The backdrop (DialogModal) is not drawn."
+  },
+  "Tooltip": {
+    "page": "Tooltip",
+    "source": "src/ui/primitives/Tooltip/Tooltip.tsx",
+    "root": ".tooltip",
+    "props": {
+      "placement": [
+        "top",
+        "bottom",
+        "left",
+        "right"
+      ]
+    },
+    "wait": 900,
+    "mirror": {
+      "c": "DialogTrigger",
+      "p": {
+        "defaultOpen": true
+      },
+      "k": [
+        {
+          "c": "IconButton",
+          "p": {
+            "aria-label": "Info"
+          },
+          "k": [
+            {
+              "c": "IconInfo"
+            }
+          ]
+        },
+        {
+          "c": "Tooltip",
+          "p": {
+            "$props": true
+          },
+          "k": [
+            {
+              "c": "TextStrong",
+              "k": [
+                "Title"
+              ]
+            },
+            {
+              "c": "TextSmall",
+              "k": [
+                "Body text"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "text": {
+      "title": "Title",
+      "body": "Body text"
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Tooltip/Tooltip.tsx: placement=top|bottom|left|right (React Aria Popover prop). children are free content: a TextStrong and a TextSmall here. Where it sits relative to its trigger is decided at runtime."
+  },
+  "Pagination": {
+    "page": "Pagination",
+    "source": "src/ui/primitives/Pagination/Pagination.tsx",
+    "props": {},
+    "mirror": {
+      "c": "Pagination",
+      "k": [
+        {
+          "c": "PaginationPrevious",
+          "p": {
+            "href": "#"
+          }
+        },
+        {
+          "c": "PaginationList",
+          "k": [
+            {
+              "c": "PaginationPage",
+              "p": {
+                "href": "#",
+                "current": true
+              },
+              "k": [
+                "1"
+              ]
+            },
+            {
+              "c": "PaginationPage",
+              "p": {
+                "href": "#"
+              },
+              "k": [
+                "2"
+              ]
+            },
+            {
+              "c": "PaginationPage",
+              "p": {
+                "href": "#"
+              },
+              "k": [
+                "3"
+              ]
+            },
+            {
+              "c": "PaginationGap"
+            },
+            {
+              "c": "PaginationPage",
+              "p": {
+                "href": "#"
+              },
+              "k": [
+                "10"
+              ]
+            }
+          ]
+        },
+        {
+          "c": "PaginationNext",
+          "p": {
+            "href": "#"
+          }
+        }
+      ]
+    },
+    "description": "Contract — src/ui/primitives/Pagination/Pagination.tsx (Pagination, PaginationPrevious, PaginationList, PaginationPage, PaginationGap, PaginationNext): every control is a real Button instance — subtle, and primary for the current page. PaginationList hides below the tablet breakpoint in code."
+  },
+  "TextPrice": {
+    "page": "Text",
+    "source": "src/ui/primitives/Text/Text.tsx",
+    "props": {
+      "size": [
+        "large",
+        "small"
+      ]
+    },
+    "mirror": {
+      "c": "TextPrice",
+      "p": {
+        "$props": true,
+        "currency": "$",
+        "price": "50",
+        "label": "/ month"
+      }
+    },
+    "text": {
+      "currency": "$",
+      "price": "50",
+      "label": "/ month"
+    },
+    "bool": {
+      "hasLabel": "label"
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Text/Text.tsx (TextPrice): size=large|small (default large). currency, price and label are string props."
+  },
+  "TextContentHeading": {
+    "page": "Text",
+    "source": "src/ui/primitives/Text/Text.tsx",
+    "width": 480,
+    "props": {
+      "align": [
+        "start",
+        "center"
+      ]
+    },
+    "mirror": {
+      "c": "TextContentHeading",
+      "p": {
+        "$props": true,
+        "heading": "Heading",
+        "subheading": "Subheading"
+      }
+    },
+    "text": {
+      "heading": "Heading",
+      "subheading": "Subheading"
+    },
+    "bool": {
+      "hasSubheading": "text-subheading"
+    },
+    "cols": 1,
+    "description": "Contract — src/ui/primitives/Text/Text.tsx (TextContentHeading): align=start|center (default start). heading and subheading are string props."
+  },
+  "TextContentTitle": {
+    "page": "Text",
+    "source": "src/ui/primitives/Text/Text.tsx",
+    "width": 640,
+    "props": {
+      "align": [
+        "start",
+        "center"
+      ]
+    },
+    "mirror": {
+      "c": "TextContentTitle",
+      "p": {
+        "$props": true,
+        "title": "Title",
+        "subtitle": "Subtitle"
+      }
+    },
+    "text": {
+      "title": "Title",
+      "subtitle": "Subtitle"
+    },
+    "bool": {
+      "hasSubtitle": "text-subtitle"
+    },
+    "cols": 1,
+    "description": "Contract — src/ui/primitives/Text/Text.tsx (TextContentTitle): align=start|center (default start). title and subtitle are props. On a phone the title drops from the hero to the page style (useMediaQuery); drawn at desktop width."
+  },
+  "Logo": {
+    "page": "Logo",
+    "source": "src/ui/primitives/Logo/Logo.tsx",
+    "props": {},
+    "mirror": {
+      "c": "Logo"
+    },
+    "description": "Contract — src/ui/primitives/Logo/Logo.tsx: no props. The drawing is an SVG in the code, imported as it is."
+  },
+  "Image": {
+    "page": "Image",
+    "source": "src/ui/primitives/Image/Image.tsx",
+    "props": {
+      "variant": [
+        "rounded",
+        "default"
+      ],
+      "aspectRatio": [
+        "1-1",
+        "4-3",
+        "16-9"
+      ],
+      "size": [
+        "medium",
+        "small",
+        "large"
+      ]
+    },
+    "root": "img.image",
+    "mirror": {
+      "c": "Image",
+      "p": {
+        "$props": true,
+        "alt": "Placeholder",
+        "src": "$placeholder"
+      }
+    },
+    "cols": 2,
+    "wait": 700,
+    "description": "Contract — src/ui/primitives/Image/Image.tsx: variant=default|rounded (default rounded), aspectRatio=1-1|4-3|16-9|fill|natural (default natural), size=small|medium|large|fill|natural (default natural). natural and fill depend on the picture and the container, so they are not drawn. The picture is a placeholder fill: drop your own image on it."
+  },
+  "Card": {
+    "page": "Card",
+    "source": "src/ui/compositions/Cards/Cards.tsx",
+    "width": 360,
+    "virtual": [
+      "padding"
+    ],
+    "props": {
+      "variant": [
+        "default",
+        "stroke",
+        "brand"
+      ],
+      "direction": [
+        "vertical",
+        "horizontal"
+      ],
+      "padding": [
+        "0",
+        "600",
+        "800"
+      ]
+    },
+    "mirror": {
+      "c": "Card",
+      "p": {
+        "$props": true,
+        "padding": {
+          "$map": "padding",
+          "0": null,
+          "600": "600",
+          "800": "800"
+        },
+        "asset": {
+          "c": "Image",
+          "p": {
+            "alt": "Placeholder",
+            "aspectRatio": "1-1",
+            "size": "small",
+            "src": "$placeholder"
+          }
+        }
+      },
+      "k": [
+        {
+          "c": "TextHeading",
+          "k": [
+            "Title"
+          ]
+        },
+        {
+          "c": "Text",
+          "k": [
+            "Body text for whatever you would like to say."
+          ]
+        },
+        {
+          "c": "ButtonGroup",
+          "p": {
+            "align": "start"
+          },
+          "k": [
+            {
+              "c": "Button",
+              "p": {
+                "variant": "neutral"
+              },
+              "k": [
+                "Button"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "text": {
+      "heading": "Title",
+      "body": "Body text for whatever you would like to say."
+    },
+    "bool": {
+      "asset": "card-asset"
+    },
+    "cols": 3,
+    "wait": 700,
+    "description": "Contract — src/ui/compositions/Cards/Cards.tsx (Card): variant=default|stroke|brand (default default), direction=vertical|horizontal (default vertical), padding=600|800 (0 stands for leaving it out, the default), align=start|center|end (not drawn), asset (an icon or Image; the boolean shows it). children are free content: a TextHeading, a Text and a Button here. interactionProps makes the whole card pressable and draws nothing."
+  },
+  "PricingCard": {
+    "page": "Card",
+    "source": "src/ui/compositions/Cards/Cards.tsx",
+    "width": 340,
+    "props": {
+      "variant": [
+        "default",
+        "stroke",
+        "brand"
+      ],
+      "size": [
+        "large",
+        "small"
+      ]
+    },
+    "mirror": {
+      "c": "PricingCard",
+      "p": {
+        "$props": true,
+        "heading": "Title",
+        "action": "Button",
+        "price": "50",
+        "priceCurrency": "$",
+        "priceLabel": "/ mo",
+        "sku": "sku-1",
+        "interval": "month",
+        "onAction": "$noop",
+        "list": [
+          "List item",
+          "List item 2",
+          "List item 3"
+        ]
+      }
+    },
+    "text": {
+      "heading": "Title"
+    },
+    "cols": 3,
+    "description": "Contract — src/ui/compositions/Cards/Cards.tsx (PricingCard): variant=default|stroke|brand, size=large|small (the price). heading, price, priceCurrency, priceLabel, action and list are props. The action is a real Button instance."
+  },
+  "ProductInfoCard": {
+    "page": "Card",
+    "source": "src/ui/compositions/Cards/Cards.tsx",
+    "width": 280,
+    "props": {},
+    "wait": 700,
+    "mirror": {
+      "c": "ProductInfoCard",
+      "p": {
+        "heading": "Product",
+        "price": "5",
+        "rating": 4.7,
+        "description": "A short description of the product.",
+        "asset": {
+          "c": "Image",
+          "p": {
+            "alt": "Placeholder",
+            "src": "$placeholder",
+            "aspectRatio": "1-1"
+          }
+        }
+      }
+    },
+    "text": {
+      "heading": "Product",
+      "description": "A short description of the product."
+    },
+    "description": "Contract — src/ui/compositions/Cards/Cards.tsx (ProductInfoCard): asset, heading, price, rating, description are props."
+  },
+  "ReviewCard": {
+    "page": "Card",
+    "source": "src/ui/compositions/Cards/Cards.tsx",
+    "width": 320,
+    "props": {},
+    "mirror": {
+      "c": "ReviewCard",
+      "p": {
+        "stars": 4,
+        "title": "Review title",
+        "body": "Review body",
+        "name": "Alex Rivera",
+        "date": "June 2026",
+        "src": "$placeholder"
+      }
+    },
+    "text": {
+      "title": "Review title",
+      "body": "Review body"
+    },
+    "description": "Contract — src/ui/compositions/Cards/Cards.tsx (ReviewCard): stars (0–5), title, body, name, date, src are props. The author is a real Avatar instance inside an AvatarBlock."
+  },
+  "StatsCard": {
+    "page": "Card",
+    "source": "src/ui/compositions/Cards/Cards.tsx",
+    "width": 280,
+    "props": {},
+    "mirror": {
+      "c": "StatsCard",
+      "p": {
+        "stat": "400",
+        "description": "Description",
+        "icon": {
+          "c": "IconClock",
+          "p": {
+            "size": "40"
+          },
+          "layer": "icon"
+        }
+      }
+    },
+    "text": {
+      "stat": "400",
+      "description": "Description"
+    },
+    "swap": {
+      "icon": "icon"
+    },
+    "description": "Contract — src/ui/compositions/Cards/Cards.tsx (StatsCard): icon, stat, description are props."
+  },
+  "TestimonialCard": {
+    "page": "Card",
+    "source": "src/ui/compositions/Cards/Cards.tsx",
+    "width": 340,
+    "props": {},
+    "mirror": {
+      "c": "TestimonialCard",
+      "p": {
+        "heading": "“Quote”",
+        "src": "$placeholder",
+        "username": "username",
+        "name": "Alex Rivera"
+      }
+    },
+    "text": {
+      "heading": "“Quote”"
+    },
+    "description": "Contract — src/ui/compositions/Cards/Cards.tsx (TestimonialCard): heading (the quote), name, username, src are props."
+  },
+  "FormBox": {
+    "page": "Form",
+    "source": "src/ui/compositions/Forms/Forms.tsx",
+    "width": 360,
+    "props": {},
+    "mirror": {
+      "c": "FormBox",
+      "p": {
+        "onSubmit": "$noop"
+      },
+      "k": [
+        {
+          "c": "InputField",
+          "p": {
+            "label": "Email",
+            "placeholder": "name@example.com"
+          }
+        },
+        {
+          "c": "InputField",
+          "p": {
+            "label": "Password",
+            "placeholder": "Password"
+          }
+        },
+        {
+          "c": "CheckboxField",
+          "p": {
+            "label": "Label",
+            "description": "Description"
+          }
+        },
+        {
+          "c": "ButtonGroup",
+          "p": {
+            "align": "justify"
+          },
+          "k": [
+            {
+              "c": "Button",
+              "p": {
+                "variant": "neutral"
+              },
+              "k": [
+                "Cancel"
+              ]
+            },
+            {
+              "c": "Button",
+              "k": [
+                "Sign in"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "description": "Contract — src/ui/compositions/Forms/Forms.tsx (FormBox): a Form in a bordered box. Everything inside is a real instance: InputField, CheckboxField, Button."
+  }
+}

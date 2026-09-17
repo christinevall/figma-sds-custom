@@ -11,6 +11,7 @@
  *
  *   node scripts/figma-mirror/tokens-to-figma.mjs             the payload, as JSON
  *   node scripts/figma-mirror/tokens-to-figma.mjs --summary   counts and warnings
+ *   node scripts/figma-mirror/tokens-to-figma.mjs --map       css name → Figma name (figma/token-map.json)
  *
  * Naming rule (the same in every system of the course): a Figma name is the
  * token path joined by "/", and its WEB code syntax is the real CSS variable,
@@ -300,5 +301,13 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     for (const v of p.variables) per[v.collection] = (per[v.collection] ?? 0) + 1;
     console.log({ variables: p.variables.length, perCollection: per, textStyles: p.textStyles.length, effectStyles: p.effectStyles.length });
     console.log(p.warnings.length ? p.warnings.join('\n') : 'no warnings');
+  } else if (process.argv.includes('--map')) {
+    // css name → Figma name, for the probe: { vars, textStyles, effectStyles }
+    const strip = (w) => w.slice(4, -1);
+    console.log(JSON.stringify({
+      vars: Object.fromEntries(p.variables.map((v) => [strip(v.web), v.name])),
+      textStyles: Object.fromEntries(p.textStyles.map((t) => [strip(t.web), t.name])),
+      effectStyles: Object.fromEntries(p.effectStyles.map((e) => [strip(e.web), e.name])),
+    }, null, 1));
   } else console.log(JSON.stringify(p));
 }
