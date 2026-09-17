@@ -4,6 +4,9 @@ Decisions that shape this system, with the reason. Newest first. Anything Figma 
 
 ## 2026-09-17
 
+**Sidebar in reading order, with plain group names.**
+Getting started → Foundations (with a new Icons page) → Components → Layout → Patterns → Utilities → About SDS. Figma's story titles ("SDS Primitives/Buttons") are renamed when Storybook indexes them (`experimental_indexers` in `.storybook/main.tsx`), so their story files stay untouched. Story URLs change with the names: `components-buttons--code` instead of `sds-primitives-buttons--code`. Getting started now shows the README's plain-words stack section, read from the README itself.
+
 **GitHub and a public Storybook.**
 The existing fork `christinevall/sds` had no commits of its own, so it was renamed to `figma-sds-custom` and updated; it keeps GitHub's "forked from figma/sds" label. `.github/workflows/main.yml` (upstream's) now builds only Storybook on Node 22 and publishes it to GitHub Pages: https://christinevall.github.io/figma-sds-custom/. `.npmrc` sets `legacy-peer-deps` so `npm ci` behaves the same locally and in CI.
 

@@ -1,36 +1,31 @@
 {/* COURSE FILE — not part of figma/sds. See COURSE-NOTES.md. */}
-import { Meta } from "@storybook/addon-docs/blocks";
+import { Meta, Markdown } from "@storybook/addon-docs/blocks";
+import readme from "../../../README.md?raw";
+
+export const REPO = "https://github.com/christinevall/figma-sds-custom/blob/main/";
+export const section = readme
+  .slice(readme.indexOf("## In plain words"), readme.indexOf("---\n\n*Figma's original README"))
+  .replace(/\]\((?!https?:)([^)]+)\)/g, (m, path) => `](${REPO}${path})`);
 
 <Meta title="Getting started" />
 
 # Figma SDS, customized
 
-This is [Figma's Simple Design System](https://github.com/figma/sds) (SDS), customized for the course. Figma's components, tokens and stories are unchanged; Storybook was upgraded to version 10 for its MCP server. The components, the tokens and the stories below **Foundations** are theirs, untouched. Three things were added on top, as new files only:
+[Figma's Simple Design System](https://github.com/figma/sds) (SDS), customized for the course. Figma's components, tokens and stories are unchanged. Added on top: these pages, a *Code* page for every component, Storybook 10 with its MCP server, and a Figma library generated from this code.
 
-- this page and the **Foundations** pages,
-- a Figma library built *from this code*, with names that match it,
-- a list of everything the code does that Figma cannot express (`figma/GAPS.md`).
+**Links:** [Code on GitHub](https://github.com/christinevall/figma-sds-custom) · [What was customized](https://github.com/christinevall/figma-sds-custom/blob/main/COURSE-NOTES.md) · [Where Figma differs from the code](https://github.com/christinevall/figma-sds-custom/blob/main/figma/GAPS.md)
 
 ## Read it in this order
 
-**Foundations** first: Colour, Typography, Size and effects. These pages read `src/theme.css` directly, so they cannot go stale.
+| Sidebar | What you find | Folder in the code |
+| --- | --- | --- |
+| **Foundations** | Colour, typography, size and effects, icons. The decisions everything else uses | `src/theme.css`, `src/ui/icons` |
+| **Components** | The building blocks: Button, Input, Menu, Dialog … Each group starts with a *Code* page | `src/ui/primitives` (Figma calls them *primitives*) |
+| **Layout** | Flex, Grid, Section: how pieces are arranged on a page. In Figma this is auto layout, so they have no Figma component | `src/ui/layout` |
+| **Patterns** | Cards and forms built from components | `src/ui/compositions` (Figma calls them *compositions*) |
+| **Utilities** | Code helpers with nothing to see, e.g. `useMediaQuery` | `src/ui/hooks` |
+| **About SDS** | Figma's own welcome page | `src/stories/_welcome` |
 
-**SDS Primitives** second. Open the Controls panel and change props. The Figma components use the same prop names and the same values, so `variant=neutral` here is `variant=neutral` there.
+SDS follows your computer's light or dark setting. There is no switch in the toolbar because the code has none.
 
-**SDS Compositions** last: cards, forms, headers. This is where you see whether the primitives hold together on a page.
-
-## Two token tiers
-
-**Primitives** say what a value is: `--sds-color-brand-800`, `--sds-size-space-300`, `--sds-typography-scale-03`.
-
-**Semantic tokens** say what a value is for: `--sds-color-background-brand-default`, `--sds-typography-body-size-medium`. Each one points at a primitive, and colour does so twice, once for light and once for dark.
-
-Components use semantic colours, and use `size` values directly. In Figma the same split shows up as collections: *Color Primitives* and *Typography Primitives* are hidden from the pickers, *Color*, *Size* and *Typography* are what a designer chooses from.
-
-## Dark mode
-
-SDS follows the operating system (`prefers-color-scheme`). There is no theme switch in the toolbar, because the code has none to flip. Change your system appearance and every page here follows.
-
-## Where this differs from Figma's own file
-
-Figma publishes a Community file for SDS, and their scripts pull tokens *out of* that file into code. This setup runs the other way: the code is the source, and the Figma library follows it. `COURSE-NOTES.md` in the repository explains how updates from Figma's repository come in without breaking that.
+<Markdown>{section}</Markdown>

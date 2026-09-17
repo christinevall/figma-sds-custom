@@ -15,6 +15,23 @@ const config: StorybookConfig = {
     "@storybook/addon-mcp",
   ],
 
+  // COURSE: plain group names in the sidebar (Components, Patterns …). The story files keep
+  // Figma's titles ("SDS Primitives/Buttons"); only the index Storybook builds is renamed.
+  experimental_indexers: async (existing) =>
+    (existing ?? []).map((indexer) => ({
+      ...indexer,
+      createIndex: async (fileName, options) =>
+        (await indexer.createIndex(fileName, options)).map((entry) => ({
+          ...entry,
+          title: entry.title
+            ?.replace(/^SDS Primitives\//, "Components/")
+            .replace(/^SDS Compositions\//, "Patterns/")
+            .replace(/^SDS Layout\//, "Layout/")
+            .replace(/^SDS Hooks\//, "Utilities/")
+            .replace(/^SDS\//, "About SDS/"),
+        })),
+    })),
+
   framework: {
     name: "@storybook/react-vite",
     options: {},
