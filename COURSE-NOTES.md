@@ -27,6 +27,7 @@ the code, so a frame that says `Button · variant=neutral, size=small` means
 | Path | What |
 | --- | --- |
 | `COURSE-NOTES.md` | This file |
+| `README.md` (top section only) | *Course edition* intro and the stack explained for beginners. Figma's text below it is unchanged |
 | `.claude/launch.json` | Storybook on port **6004** (upstream's script uses 6006) |
 | `.claude/skills/ds-inspection/` | The health check ([Brad Frost](https://github.com/bradfrost/skills), MIT), bundled |
 | `.claude/skills/figma-mirror/` | How the Figma library is built and updated from this code |
@@ -84,7 +85,9 @@ here can be pushed to Figma's repository by accident. There is no `origin` yet.
 - **Two token tiers, split by collection.** Primitives (`color/brand/800`, `typography/scale/03`) and semantic tokens (`color/background/brand/default`). Sizes have one tier and are used directly.
 - **Every shadow value is a variable**, down to the offsets. No other system in the course does that.
 - **React Aria underneath**, not Base UI. States arrive as `data-hovered`, `data-selected`, `data-disabled`.
-- **Code Connect files** (`src/figma/`) ship with it. They point at Figma's own file, not ours. See `figma/GAPS.md`.
+- **Code Connect files** (`src/figma/`) ship with it. They point at Figma's own file, not ours, and need an Organization or Enterprise plan. See `figma/GAPS.md`.
+- **Storybook 10 with the MCP server.** Upstream ships Storybook 8.6. This edition runs 10.6 so `@storybook/addon-mcp` works: an AI assistant in Cursor or Claude can ask Storybook which components exist (http://localhost:6004/mcp). Also added: the accessibility panel, and a *Code* page per component group.
+- **The stack, explained for beginners**, is at the top of `README.md`.
 
 ## Known gaps
 
