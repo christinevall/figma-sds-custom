@@ -4,6 +4,9 @@ Decisions that shape this system, with the reason. Newest first. Anything Figma 
 
 ## 2026-09-17
 
+**GitHub and a public Storybook.**
+The existing fork `christinevall/sds` had no commits of its own, so it was renamed to `figma-sds-custom` and updated; it keeps GitHub's "forked from figma/sds" label. `.github/workflows/main.yml` (upstream's) now builds only Storybook on Node 22 and publishes it to GitHub Pages: https://christinevall.github.io/figma-sds-custom/. `.npmrc` sets `legacy-peer-deps` so `npm ci` behaves the same locally and in CI.
+
 **Name: "Figma SDS, customized", folder `04-figma-sds-custom`.**
 It has to be obvious that the system is Figma's and that Christine changes and adds to it. Future GitHub repo: `figma-sds-custom`. The MIT licence and Figma's copyright stay in `LICENSE`.
 
