@@ -45,7 +45,10 @@ globalThis.__sds = (() => {
 
   // A style's fontName carries variationSettings; loadFontAsync hangs on some of those (Inter Italic),
   // so always load by family and style only.
-  const loadFont = (fn) => figma.loadFontAsync({ family: fn.family, style: fn.style });
+  // …and load each font ONCE. While the Figma window is hidden (you walked away, the display slept),
+  // loadFontAsync stalls for half a minute every few calls, even for a font that is already loaded.
+  const loaded = new Set();
+  const loadFont = async (fn) => { const k = `${fn.family}/${fn.style}`; if (loaded.has(k)) return; await figma.loadFontAsync({ family: fn.family, style: fn.style }); loaded.add(k); };
 
   // ------------------------------------------------------------ values
   const rgba = (str) => {
@@ -77,7 +80,9 @@ globalThis.__sds = (() => {
 
   F.textNode = async function (t, owner, rep) {
     const n = figma.createText();
-    const ty = owner.type;
+    // A browser never lays an <input>'s text out tighter than the font's normal line height, whatever
+    // line-height says (SDS sets 1, the box is still 19.5px for 16px Inter). Auto is what it renders.
+    const ty = owner.t === 'input' ? { ...owner.type, lh: 'normal' } : owner.type;
     n.name = t.name ?? 'text';
     const want = ty.style.tok;
     let style = want && S.text.get(want);
@@ -95,14 +100,14 @@ globalThis.__sds = (() => {
         // One field differs from the style (line height). Figma cannot override one field of a
         // text style, so bind the style's own variables one by one and keep the line height raw.
         n.fontSize = style.fontSize;
-        for (const [field, alias] of Object.entries(style.boundVariables ?? {})) { const v = await figma.variables.getVariableByIdAsync(alias.id); if (v) n.setBoundVariable(field, v); }
+        for (const [field, alias] of Object.entries(style.boundVariables ?? {})) { const v = [...S.vars.values()].find((x) => x.id === alias.id); if (v) n.setBoundVariable(field, v); }
         n.lineHeight = ratio === 'normal' ? { unit: 'AUTO' } : { unit: 'PERCENT', value: ratio * 100 };
         n.textDecoration = style.textDecoration;
         mark(n, 'textStyle'); n.setSharedPluginData('sds', 'textStyle', style.name);
         rep.type.push(`${n.name}: ${style.name} at line-height ${ratio} (the style has ${lhOf(style)}) — fields bound one by one`);
       }
     } else {
-      await figma.loadFontAsync({ family: 'Inter', style: 'Regular' });
+      await loadFont({ family: 'Inter', style: 'Regular' });
       n.characters = t.text; n.fontSize = ty.size;
       rep.raw.push(`${n.name}: no text style for ${ty.style.raw ?? ty.style.missing ?? ty.style.v}`);
     }
@@ -218,10 +223,13 @@ globalThis.__sds = (() => {
     if (multiColumn) F.gridLayout(f, s, made, rep);
     for (const { k, n, abs } of made) {
       if (!multiColumn || abs) f.appendChild(n);
-      if (abs) { n.layoutPositioning = 'ABSOLUTE'; if (!k.pseudo) { n.x = k.box[0] - s.box[0]; n.y = k.box[1] - s.box[1]; } }
+      if (abs) { n.layoutPositioning = 'ABSOLUTE'; if (!k.pseudo) { if ('resize' in n && n.type !== 'INSTANCE' && k.t !== '#text') n.resize(Math.max(k.box[2], 0.01), Math.max(k.box[3], 0.01)); n.x = k.box[0] - s.box[0]; n.y = k.box[1] - s.box[1]; for (const d of ['width', 'height']) { const v = k[d]?.tok && S.vars.get(k[d].tok); if (v && 'setBoundVariable' in n && n.type === 'FRAME') n.setBoundVariable(d, v); } } }
       if (k.t === '#text') {
         const oneLine = s.type.ws === 'nowrap' || k.box[3] <= (s.type.lh === 'normal' ? s.type.size * 1.5 : s.type.lh * 1.5);
-        if (oneLine && (row || !stretch || flow.length > 1)) n.textAutoResize = 'WIDTH_AND_HEIGHT';
+        // One line of text hugs. Filling a block that is exactly as wide as the text makes Figma wrap it
+        // on a rounding error ("Label" became two lines). Centred or right-aligned text has to fill to align.
+        const aligned = ['center', 'right', 'end'].includes(s.type.align);
+        if (oneLine && !aligned) n.textAutoResize = 'WIDTH_AND_HEIGHT';
         else { n.textAutoResize = 'HEIGHT'; n.layoutSizingHorizontal = 'FILL'; }
       } else if (!abs && k.t !== 'svg') F.sizeChild(n, k, s, multiColumn ? false : row, multiColumn ? true : stretch);
     }
@@ -229,7 +237,8 @@ globalThis.__sds = (() => {
 
     // own size, when nothing above decides it
     if (isRoot) {
-      const hugW = opts.rootW ? opts.rootW === 'hug' : (s.disp?.startsWith('inline') || s.type?.ws === 'nowrap') && !s.width;
+      const declared = s.width && !String(s.width.raw ?? '').endsWith('%');
+      const hugW = opts.rootW === 'fixed' ? false : opts.rootW === 'hug' ? !declared && kids.some((k) => k.pos !== 'absolute') : (s.disp?.startsWith('inline') || s.type?.ws === 'nowrap') && !declared;
       f.resize(Math.max(s.box[2], 0.01), Math.max(s.box[3], 0.01));
       f.layoutSizingHorizontal = hugW ? 'HUG' : 'FIXED';
       f.layoutSizingVertical = s.height || !kids.length ? 'FIXED' : 'HUG';
@@ -245,6 +254,10 @@ globalThis.__sds = (() => {
    */
   F.gridLayout = function (f, s, made, rep) {
     const flow = made.filter((m) => !m.abs);
+    // If a child spans columns (the slider's track under "label … value"), columns cannot hold it:
+    // read the grid as rows instead. A row with several children becomes a horizontal frame.
+    const trackOf = (m) => { let acc = s.box[0] + (s.pad?.[3]?.v ?? 0), i = 0; for (; i < s.grid.cols.length; i++) { if (m.k.box[0] < acc + s.grid.cols[i] - 0.5) break; acc += s.grid.cols[i] + (s.gapCol?.v ?? 0); } return Math.min(i, s.grid.cols.length - 1); };
+    if (flow.some((m) => m.k.box[2] > s.grid.cols[trackOf(m)] + 1)) return F.gridRows(f, s, flow, rep);
     const padL = s.pad?.[3]?.v ?? 0, padT = s.pad?.[0]?.v ?? 0, colGap = s.gapCol?.v ?? 0;
     const starts = []; let x = s.box[0] + padL;
     s.grid.cols.forEach((w) => { starts.push(x); x += w + colGap; });
@@ -254,12 +267,11 @@ globalThis.__sds = (() => {
       const c = figma.createFrame(); c.name = `column ${i + 1}`; c.fills = []; c.clipsContent = false; c.layoutMode = 'VERTICAL';
       if (s.gapRow) { c.itemSpacing = s.gapRow.v; bindNum(c, 'itemSpacing', s.gapRow, rep, `${f.name} row gap`); }
       f.appendChild(c);
-      const last = i === s.grid.cols.length - 1;
+      // 1fr fills, auto hugs, a length is fixed (and keeps its token). Without the declared tracks: the last one fills.
+      const kind = s.grid.decl?.[i] ?? (i === s.grid.cols.length - 1 ? 'fill' : 'fixed');
       c.resize(Math.max(w, 0.01), 10);
       c.layoutSizingVertical = 'HUG';
-      if (last) c.layoutSizingHorizontal = 'FILL';
-      else { c.layoutSizingHorizontal = 'FIXED'; const v = s.grid.tok?.[i] && S.vars.get(s.grid.tok[i]); if (v) c.setBoundVariable('width', v); else rep.raw.push(`${f.name} grid column ${i + 1}: ${w}px`); }
-      return { c, kids: [] };
+      return { c, kids: [], kind, w, i };
     });
     for (const m of flow) { let i = 0; starts.forEach((st, j) => { if (m.k.box[0] >= st - 0.5) i = j; }); cols[i].kids.push(m); }
     for (const col of cols) {
@@ -267,9 +279,39 @@ globalThis.__sds = (() => {
       for (const m of col.kids) col.c.appendChild(m.n);
       const first = col.kids[0];
       if (first) { const lead = Math.round((first.k.box[1] - s.box[1] - padT) * 100) / 100; if (lead > 0.5) { col.c.paddingTop = lead; mark(col.c, 'paddingTop'); rep.raw.push(`${f.name}: grid rows align items across columns — column top padding ${lead}px stands in`); } }
-      if (!col.kids.length) col.c.remove();
+      if (!col.kids.length) { col.c.remove(); continue; }
+      if (col.kind === 'fill') col.c.layoutSizingHorizontal = 'FILL';
+      else if (col.kind === 'hug') col.c.layoutSizingHorizontal = 'HUG';
+      else { col.c.layoutSizingHorizontal = 'FIXED'; const v = s.grid.tok?.[col.i] && S.vars.get(s.grid.tok[col.i]); if (v) col.c.setBoundVariable('width', v); else rep.raw.push(`${f.name} grid column ${col.i + 1}: ${col.w}px`); }
+      // a grid row is as tall as its tallest cell, so the space under a short cell is more than the row gap
+      F.spacing(col.c, { gapRow: s.gapRow, box: s.box }, col.kids, false, rep);
     }
     rep.layout.push(`${f.name}: CSS grid (${s.grid.cols.length} columns) drawn as ${s.grid.cols.length} column frames`);
+  };
+
+  F.gridRows = function (f, s, flow, rep) {
+    const sorted = [...flow].sort((a, b) => a.k.box[1] - b.k.box[1] || a.k.box[0] - b.k.box[0]);
+    const rows = [];
+    for (const m of sorted) { const last = rows.at(-1); if (last && m.k.box[1] < last.bottom - 0.5) { last.items.push(m); last.bottom = Math.max(last.bottom, m.k.box[1] + m.k.box[3]); } else rows.push({ items: [m], top: m.k.box[1], bottom: m.k.box[1] + m.k.box[3] }); }
+    f.layoutMode = 'VERTICAL'; f.counterAxisAlignItems = 'MIN';
+    const right = s.box[0] + s.box[2] - (s.pad?.[1]?.v ?? 0);
+    const stack = rows.map((r) => {
+      if (r.items.length === 1) { f.appendChild(r.items[0].n); return r.items[0]; }
+      r.items.sort((a, b) => a.k.box[0] - b.k.box[0]);
+      const row = figma.createFrame(); row.name = 'row'; row.fills = []; row.clipsContent = false; row.layoutMode = 'HORIZONTAL'; f.appendChild(row);
+      for (const m of r.items) row.appendChild(m.n);
+      const lastItem = r.items.at(-1).k;
+      row.primaryAxisAlignItems = Math.abs(lastItem.box[0] + lastItem.box[2] - right) < 1 ? 'SPACE_BETWEEN' : 'MIN';
+      row.counterAxisAlignItems = r.items.some((m) => m.k.alignSelf === 'flex-end') ? 'MAX' : ({ center: 'CENTER', end: 'MAX', 'flex-end': 'MAX' }[s.ai] ?? 'MIN');
+      if (row.primaryAxisAlignItems === 'MIN' && s.gapCol) { row.itemSpacing = s.gapCol.v; bindNum(row, 'itemSpacing', s.gapCol, rep, `${f.name} column gap`); }
+      row.layoutSizingHorizontal = 'FILL'; row.layoutSizingVertical = 'HUG';
+      for (const m of r.items) if ('layoutSizingHorizontal' in m.n && m.n.type !== 'TEXT') { m.n.layoutSizingHorizontal = 'HUG'; m.n.setSharedPluginData('sds', 'sized', 'row'); } // sizeChild runs later and must leave these alone
+      const margin = [0, 1, 2, 3].map((i) => r.items.map((m) => m.k.margin?.[i]).find((x) => x?.tok) ?? { v: 0 });
+      return { k: { box: [s.box[0], r.top, s.box[2], r.bottom - r.top], margin }, n: row, row: true };
+    });
+    for (const m of stack) if (!m.row && 'layoutSizingHorizontal' in m.n && m.n.type !== 'INSTANCE') { try { m.n.layoutSizingHorizontal = 'FILL'; } catch { /* text or fixed */ } }
+    F.spacing(f, { gapRow: s.gapRow, box: s.box }, stack, false, rep);
+    rep.layout.push(`${f.name}: CSS grid with a spanning child, drawn as ${rows.length} rows`);
   };
 
   /**
@@ -310,7 +352,7 @@ globalThis.__sds = (() => {
   };
 
   F.sizeChild = function (n, k, parent, row, stretch) {
-    if (!('layoutSizingHorizontal' in n)) return;
+    if (!('layoutSizingHorizontal' in n) || n.getSharedPluginData('sds', 'sized')) return;
     const pct = (v) => v?.raw?.endsWith('%');
     const hasKids = (k.kids ?? []).length > 0;
     if (n.type === 'INSTANCE') { // an instance keeps its own sizing; it only ever stretches
@@ -324,7 +366,7 @@ globalThis.__sds = (() => {
     else if (pct(k.width) || (row && k.grow) || (!row && stretch && !k.disp?.startsWith('inline')) || k.alignSelf === 'stretch') n.layoutSizingHorizontal = 'FILL';
     else n.layoutSizingHorizontal = hasKids ? 'HUG' : 'FIXED';
     // height
-    if (k.height && !pct(k.height)) n.layoutSizingVertical = 'FIXED';
+    if ((k.height && !pct(k.height)) || k.width?.raw === 'table-cell') n.layoutSizingVertical = 'FIXED'; // table cells share their row's height
     else if (!row && k.grow) n.layoutSizingVertical = 'FILL';
     else n.layoutSizingVertical = hasKids ? 'HUG' : 'FIXED';
     const tokW = k.width?.tok && S.vars.get(k.width.tok); if (tokW) n.setBoundVariable('width', tokW);
@@ -352,7 +394,12 @@ globalThis.__sds = (() => {
     const raw = node.getSharedPluginData('sds', 'box');
     if (raw) {
       const b = JSON.parse(raw);
-      if (Math.abs(node.width - b[2]) > 1 || Math.abs(node.height - b[3]) > 1) rep.size.push(`${path}${node.name}: Figma ${Math.round(node.width * 10) / 10}×${Math.round(node.height * 10) / 10}, browser ${b[2]}×${b[3]}`);
+      // Tolerances, both measured: Chrome rounds Inter's normal line height up (19.5px at 16px), Figma's Auto
+      // rounds it down (19px), so each line of text may cost half a pixel. And a block that simply fills its
+      // parent is as wide as the parent in both tools, even where the browser reports a shrink-wrapped grid cell.
+      const fills = node.layoutSizingHorizontal === 'FILL';
+      const lines = 'findAllWithCriteria' in node ? node.findAllWithCriteria({ types: ['TEXT'] }).length : 0;
+      if ((!fills && Math.abs(node.width - b[2]) > 1) || Math.abs(node.height - b[3]) > 1 + lines * 0.5) rep.size.push(`${path}${node.name}: Figma ${Math.round(node.width * 10) / 10}×${Math.round(node.height * 10) / 10}, browser ${b[2]}×${b[3]}`);
     }
     if ('children' in node && node.type !== 'INSTANCE') for (const c of node.children) F.audit(c, rep, `${path}${node.name} / `);
   }
@@ -402,7 +449,7 @@ globalThis.__sds = (() => {
     }
     for (const [prop, layer] of Object.entries(o.bool ?? {})) {
       const id = set.addComponentProperty(prop, 'BOOLEAN', o.boolDefaults?.[prop] ?? true); let n = 0;
-      for (const c of each) for (const t of c.findAll((x) => x.name === layer && !insideInstance(x, c))) { t.componentPropertyReferences = { ...t.componentPropertyReferences, visible: id }; n++; }
+      for (const c of each) { const hits = c.findAll((x) => x.name === layer && !insideInstance(x, c)); const boxes = hits.filter((x) => x.type !== 'TEXT'); for (const t of boxes.length ? boxes : hits) { t.componentPropertyReferences = { ...t.componentPropertyReferences, visible: id }; n++; } }
       wired[prop] = n;
     }
     for (const [prop, layer] of Object.entries(o.swap ?? {})) {
@@ -463,6 +510,8 @@ globalThis.__sds = (() => {
     const post = (n) => {
       if (n.pad && n.pad.length === 1) n.pad = [n.pad[0], n.pad[0], n.pad[0], n.pad[0]];
       if (n.gap) { n.gapRow = n.gap; n.gapCol = n.gap; delete n.gap; }
+      // a grid whose children all start in the first column is a plain stack (.field: its second track only holds an optional extra)
+      if (n.grid) { const xs = (n.kids ?? []).filter((k) => k.pos !== 'absolute' && k.pos !== 'fixed').map((k) => k.box[0]); if (!xs.some((x) => Math.abs(x - xs[0]) > 0.5)) delete n.grid; }
       if (n.type && n.type.size === undefined && n.type.style?.tok) n.type.size = S.text.get(n.type.style.tok)?.fontSize;
       (n.kids ?? []).forEach(post);
     };
@@ -495,7 +544,7 @@ globalThis.__sds = (() => {
    */
   async function component(def) {
     let page = figma.root.children.find((p) => p.name === def.page);
-    if (!page) { page = figma.createPage(); page.name = def.page; }
+    if (!page) { page = figma.createPage(); page.name = def.page; page.backgrounds = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }]; }
     if (page.findOne((n) => (n.type === 'COMPONENT_SET' || n.type === 'COMPONENT') && n.name === def.name)) throw new Error(`${def.name} is already on page ${def.page} — update it, do not build it twice`);
     const bottom = page.children.reduce((m, n) => Math.max(m, n.y + n.height), 0);
     const items = [], report = { raw: new Set(), type: new Set(), layout: new Set(), size: [] }; const t0 = Date.now(); const ms = [];

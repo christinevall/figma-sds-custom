@@ -28,7 +28,8 @@ the code, so a frame that says `Button · variant=neutral, size=small` means
 | `.claude/launch.json` | Storybook on port **6004** (upstream's script uses 6006) |
 | `.claude/skills/ds-inspection/` | The health check ([Brad Frost](https://github.com/bradfrost/skills), MIT), bundled |
 | `.claude/skills/figma-mirror/` | How the Figma library is built and updated from this code |
-| `src/stories/_course/` | Storybook pages: *Getting started*, *Foundations* (Colour, Typography, Size and effects), and the hidden *Mirror* harness |
+| `src/stories/_course/` | Storybook pages: *Getting started*, *Foundations* (Colour, Typography, Size and effects), the hidden *Mirror* harness, and a **Code** page under every component group (`docs/`: all stories, then the component's `.tsx` and `.css`) |
+| `scripts/course/docs-pages.mjs` | Writes those Code pages from `src/stories` and `src/ui`. Run it again after an upstream update |
 | `scripts/figma-mirror/` | The pipeline: tokens → Figma, icons → Figma, the probe (browser), the builder (Figma), the upstream check |
 | `figma/` | `contracts.json` (what each Figma component is), `token-map.json`, `icon-paths.json`, `manifest.json`, **`GAPS.md`** |
 | `docs/decisions.md` | Decisions and why |

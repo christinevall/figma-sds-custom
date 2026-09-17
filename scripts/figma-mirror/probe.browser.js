@@ -298,7 +298,7 @@ function specFor(el, ctx, rootRect, parent) {
   } else if (disp.includes('grid')) {
     const g = get(['grid-template-columns'], 'grid-template-columns');
     const tracks = g.ex ? splitTop(g.ex, ' ') : [];
-    s.grid = { cols: cs.gridTemplateColumns.split(' ').map(num), tok: tracks.map((t) => { const m = t.match(ONE_TOKEN); return m ? MAP.vars[m[1]] ?? null : null; }) };
+    s.grid = { cols: cs.gridTemplateColumns.split(' ').map(num), tok: tracks.map((t) => { const m = t.match(ONE_TOKEN); return m ? MAP.vars[m[1]] ?? null : null; }), decl: tracks.map((t) => (/fr\b|minmax|%/.test(t) ? 'fill' : t === 'auto' || /content/.test(t) ? 'hug' : 'fixed')) };
     s.ai = cs.alignItems; s.jc = cs.justifyContent;
   }
   for (const [k, props, cprop] of [['gapRow', ['row-gap', 'gap'], 'row-gap'], ['gapCol', ['column-gap', 'gap'], 'column-gap']]) {
@@ -569,7 +569,8 @@ export async function probeComponent(name) {
   }
   const packed = items.map((it, i) => (i === 0 ? it : { props: it.props, d: diff(items[0].spec, it.spec) }));
   const { mirror, props, skip, virtual, width, root, mutate, wait, insts, story, viewport, noSharedInsts, ...rest } = c;
-  return { def: { name, ...rest, items: packed }, gaps: [...gaps.values()] };
+  // a contract with a width is drawn that wide; one without is as wide as its content
+  return { def: { name, ...rest, rootW: width ? 'fixed' : 'hug', items: packed }, gaps: [...gaps.values()] };
 }
 
 /** A JS literal without double quotes, so it survives being copied out of a tool result unescaped. */
