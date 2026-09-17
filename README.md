@@ -9,7 +9,49 @@
 > Everything below the line "Figma's original README" is Figma's own text, unchanged.
 > What the course added, and why, is in [`COURSE-NOTES.md`](COURSE-NOTES.md).
 
-## The stack, explained for beginners
+## In plain words: what is in here?
+
+**A design system in code is the same idea as a Figma library.** Figma has components, variables and styles. The code has the same three things, just written as text files that a browser can show.
+
+| In Figma you know… | In this code it is… | Written in… |
+| --- | --- | --- |
+| A component (Button) with variants | A **React component** (`Button.tsx`) with **props** (`variant="primary"`) | React + TypeScript |
+| Variables (colours, spacing) | **Design tokens**: CSS variables like `--sds-color-background-brand-default` | `src/theme.css` |
+| The look of a component (fills, padding, radius) | A **stylesheet** that uses those tokens | one `.css` file per component |
+| A library file you open to browse | **Storybook**, a website that shows every component and state | http://localhost:6004 or the live link |
+
+**React** is the most common way to build web interfaces from reusable pieces. You write a piece once (a Button) and reuse it everywhere, just like a Figma component. **Props** are its component properties.
+
+### How a colour gets from Figma to the screen
+
+Take the dark background of the primary button.
+
+1. **Figma:** Figma's designers defined a variable `Background/Brand/Default`, pointing at the colour `Brand/800` (#2C2C2C) in Light mode.
+2. **Export:** a script in this repository (`scripts/tokens`) read those variables and wrote them into one text file, `src/theme.css`:
+   `--sds-color-background-brand-default: var(--sds-color-brand-800);`
+3. **Component:** the button's stylesheet does not say "#2C2C2C". It says "use the brand background token":
+   `--button-background-color: var(--sds-color-background-brand-default);`
+4. **Browser:** when the page loads, the browser looks the token up and paints #2C2C2C. In dark mode it looks up the dark value instead.
+
+So **change the token once, and every component that uses it changes**. That is the whole point of tokens, in Figma and in code.
+
+In this customized edition the direction is also reversed: the course reads `theme.css` and the components, and *builds* the Figma library from them, so Figma always matches what the code really does.
+
+### Words you will hear
+
+| Word | Means |
+| --- | --- |
+| **Repository (repo)** | The project folder, with its full history of changes. This one lives on GitHub |
+| **Fork** | A copy of someone else's repository that you can change. This is a fork of Figma's |
+| **npm / Node** | The tools that install and run everything. You type `npm run storybook`, they do the rest |
+| **Build** | Turning the source files into a finished website. The live Storybook is a build |
+| **Token** | A named design decision (a colour, a spacing step) that code and Figma share |
+| **Primitive / semantic token** | *What* a value is (`brand-800`) / *what it is for* (`background/brand/default`). Components only use semantic ones |
+| **Story** | One example of a component in one state, shown in Storybook |
+| **MCP** | A plug that lets an AI assistant (Cursor, Claude) look things up in a tool, here: which components exist in Storybook |
+| **Code Connect** | A Figma feature that shows the real code in Dev Mode. Needs an Organization or Enterprise plan |
+
+## The stack, tool by tool
 
 A design system in code is not one tool but a small chain of them. This is SDS's chain, from the bottom up. You do not need to know how to write any of it to use the system. It helps to know what each piece is *for*.
 
