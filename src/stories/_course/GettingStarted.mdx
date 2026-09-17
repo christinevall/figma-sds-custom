@@ -7,6 +7,17 @@ export const section = readme
   .slice(readme.indexOf("## In plain words"), readme.indexOf("---\n\n*Figma's original README"))
   .replace(/\]\((?!https?:)([^)]+)\)/g, (m, path) => `](${REPO}${path})`);
 
+export const ORDER = `
+| Sidebar | What you find | Folder in the code |
+| --- | --- | --- |
+| **Foundations** | Colour, typography, size and effects, icons. The decisions everything else uses | \`src/theme.css\`, \`src/ui/icons\` |
+| **Components** | The building blocks: Button, Input, Menu, Dialog … Each group starts with a *Code* page | \`src/ui/primitives\` (Figma calls them *primitives*) |
+| **Layout** | Flex, Grid, Section: how pieces are arranged on a page. In Figma this is auto layout, so they have no Figma component | \`src/ui/layout\` |
+| **Patterns** | Cards and forms built from components | \`src/ui/compositions\` (Figma calls them *compositions*) |
+| **Utilities** | Code helpers with nothing to see, e.g. \`useMediaQuery\` | \`src/ui/hooks\` |
+| **About SDS** | Figma's own welcome page | \`src/stories/_welcome\` |
+`;
+
 <Meta title="Getting started" />
 
 # Figma SDS, customized
@@ -17,14 +28,7 @@ export const section = readme
 
 ## Read it in this order
 
-| Sidebar | What you find | Folder in the code |
-| --- | --- | --- |
-| **Foundations** | Colour, typography, size and effects, icons. The decisions everything else uses | `src/theme.css`, `src/ui/icons` |
-| **Components** | The building blocks: Button, Input, Menu, Dialog … Each group starts with a *Code* page | `src/ui/primitives` (Figma calls them *primitives*) |
-| **Layout** | Flex, Grid, Section: how pieces are arranged on a page. In Figma this is auto layout, so they have no Figma component | `src/ui/layout` |
-| **Patterns** | Cards and forms built from components | `src/ui/compositions` (Figma calls them *compositions*) |
-| **Utilities** | Code helpers with nothing to see, e.g. `useMediaQuery` | `src/ui/hooks` |
-| **About SDS** | Figma's own welcome page | `src/stories/_welcome` |
+<Markdown>{ORDER}</Markdown>
 
 SDS follows your computer's light or dark setting. There is no switch in the toolbar because the code has none.
 
