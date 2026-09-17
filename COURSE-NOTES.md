@@ -3,8 +3,10 @@
 > **This file is ours. The components, tokens and stories are Figma's.**
 > SDS is [github.com/figma/sds](https://github.com/figma/sds), MIT, by Figma.
 > Cloned 2026-09-17 at commit `6afa4b4` (their push of 2026-09-15).
-> Not one of their files was edited. Everything the course added is a new file,
-> listed below, and each one says "COURSE FILE" at the top.
+> Their components, tokens and stories are unchanged. One deliberate exception:
+> Storybook was upgraded from 8.6 to 10 for the MCP server, which touched
+> `package.json` and three files in `.storybook/` (see `docs/decisions.md`).
+> Everything else the course added is a new file, listed below.
 
 This is design system **04** in a course that compares how design systems are
 built. The others: `01-base-ui`, `02-shadcn`, `03-altitude`, and Carbon, which
@@ -38,7 +40,7 @@ the code, so a frame that says `Button · variant=neutral, size=small` means
 
 ```bash
 npm ci
-npx storybook dev -p 6004 --no-open      # http://localhost:6004
+npm run storybook      # http://localhost:6004 · MCP: http://localhost:6004/mcp
 ```
 
 SDS follows the operating system for dark mode (`prefers-color-scheme`). There

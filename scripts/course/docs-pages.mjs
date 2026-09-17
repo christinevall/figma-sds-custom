@@ -53,7 +53,7 @@ const heading = (key) => key.split('/').pop().replace(/([a-z])([A-Z])/g, '$1 $2'
 
 let pages = 0;
 for (const [title, group] of byTitle) {
-  const imports = ['import { Meta, Canvas, Source } from "@storybook/blocks";'];
+  const imports = ['import { Meta, Canvas, Source } from "@storybook/addon-docs/blocks";'];
   const body = [];
   group.forEach((f, i) => imports.push(`import * as S${i} from "${rel(f.file)}";`));
   let n = 0;

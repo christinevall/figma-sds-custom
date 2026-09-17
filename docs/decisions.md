@@ -4,6 +4,9 @@ Decisions that shape this system, with the reason. Newest first. Anything Figma 
 
 ## 2026-09-17
 
+**Storybook 8.6 → 10, the first edit to upstream files.**
+Christine needs the Storybook MCP server (`@storybook/addon-mcp`), which exists for Storybook 10 only. Edited: `package.json` and `package-lock.json` (Storybook packages, `storybook` script now on port 6004), `.storybook/main.tsx` (addons docs, a11y, mcp; `import.meta.dirname`; an alias so two upstream stories keep importing `@storybook/preview-api`), `.storybook/manager.tsx` and `.storybook/theme.tsx` (new import paths). No component or story was changed. A future `git merge upstream/main` can conflict in exactly these files; keep ours for the Storybook lines. Installed with `--legacy-peer-deps` so the rest of upstream's lockfile stays as it was.
+
 **The code is the source; the Figma file is built from it.**
 Figma's own setup runs the other way (their scripts export tokens from their Community file). Christine wanted her own library, made the way systems 01 to 03 are: names and values come from the code, so a frame can be read back as code. Their Community file is not used.
 

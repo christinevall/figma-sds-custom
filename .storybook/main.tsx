@@ -9,8 +9,10 @@ const config: StorybookConfig = {
 
   addons: [
     "@storybook/addon-links",
-    "@storybook/addon-essentials",
-    "@storybook/addon-interactions",
+    "@storybook/addon-docs",
+    "@storybook/addon-a11y",
+    // COURSE: the Storybook MCP server, so an AI can ask Storybook which components exist
+    "@storybook/addon-mcp",
   ],
 
   framework: {
@@ -24,14 +26,16 @@ const config: StorybookConfig = {
     if (config.resolve) {
       config.resolve.alias = {
         ...config.resolve.alias,
-        compositions: path.resolve(__dirname, "/src/ui/compositions"),
-        hooks: path.resolve(__dirname, "/src/ui/hooks"),
-        icons: path.resolve(__dirname, "/src/ui/icons"),
-        images: path.resolve(__dirname, "/src/ui/images"),
-        layout: path.resolve(__dirname, "/src/ui/layout"),
-        primitives: path.resolve(__dirname, "/src/ui/primitives"),
-        providers: path.resolve(__dirname, "/src/ui/providers"),
-        utils: path.resolve(__dirname, "/src/ui/utils"),
+        // COURSE: Storybook 10 moved this package into "storybook"; two upstream stories still import the old name
+        "@storybook/preview-api": "storybook/preview-api",
+        compositions: path.resolve(import.meta.dirname, "/src/ui/compositions"),
+        hooks: path.resolve(import.meta.dirname, "/src/ui/hooks"),
+        icons: path.resolve(import.meta.dirname, "/src/ui/icons"),
+        images: path.resolve(import.meta.dirname, "/src/ui/images"),
+        layout: path.resolve(import.meta.dirname, "/src/ui/layout"),
+        primitives: path.resolve(import.meta.dirname, "/src/ui/primitives"),
+        providers: path.resolve(import.meta.dirname, "/src/ui/providers"),
+        utils: path.resolve(import.meta.dirname, "/src/ui/utils"),
       };
     }
 

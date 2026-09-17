@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "storybook-figma-sds": {
+      "type": "http",
+      "url": "http://localhost:6004/mcp"
+    }
+  }
+}
