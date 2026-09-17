@@ -48,12 +48,12 @@ is no theme switch, because the code has none.
 
 ## "If Figma updates SDS, can I still use this?"
 
-Yes. That is what the "new files only" rule buys.
+Yes. Almost everything added is a new file, so their updates merge cleanly. The one exception is the Storybook 10 upgrade: `package.json` and `.storybook/` can conflict, and there you keep our Storybook lines.
 
 ```bash
 git fetch upstream
 git log --oneline main..upstream/main      # what is new on their side
-git merge upstream/main                    # our files cannot conflict: theirs never touch them
+git merge upstream/main                    # only package.json and .storybook/ can conflict
 node scripts/figma-mirror/check-upstream.mjs
 ```
 
