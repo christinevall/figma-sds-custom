@@ -286,11 +286,15 @@ function specFor(el, ctx, rootRect, parent) {
   if (tag === 'img') { s.img = { fit: cs.objectFit }; } // the picture itself cannot travel: Figma gets a placeholder fill
 
   // layout
-  const disp = cs.display;
+  let disp = cs.display;
+  // Table layout: rows become horizontal stacks, cells keep the width the browser gave them.
+  // Auto layout has no table model, so a column does not grow when its content does.
+  if (disp === 'table-row') { disp = 'flex'; s.tableRow = true; }
+  if (disp === 'table-cell') { s.width = { v: `${num(r.width)}px`, raw: 'table-cell' }; if (!ctx.tableNoted) { ctx.tableNoted = true; gaps.push({ el: 'table', prop: 'display: table', declared: 'column widths follow their content', computed: 'fixed at the measured width', kind: 'layout' }); } }
   s.disp = disp;
   if (disp.includes('flex')) {
-    s.dir = cs.flexDirection; if (cs.flexWrap !== 'nowrap') s.wrap = cs.flexWrap;
-    s.ai = cs.alignItems; s.jc = cs.justifyContent;
+    s.dir = s.tableRow ? 'row' : cs.flexDirection; if (cs.flexWrap !== 'nowrap' && !s.tableRow) s.wrap = cs.flexWrap;
+    s.ai = s.tableRow ? 'stretch' : cs.alignItems; s.jc = s.tableRow ? 'flex-start' : cs.justifyContent;
   } else if (disp.includes('grid')) {
     const g = get(['grid-template-columns'], 'grid-template-columns');
     const tracks = g.ex ? splitTop(g.ex, ' ') : [];

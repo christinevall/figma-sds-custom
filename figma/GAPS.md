@@ -105,4 +105,5 @@ Not ours to fix here. Each is worth an issue on `figma/sds`.
 | `Accordion.tsx` | `AccordionItem` takes `isExpanded` and `isDisabled` out of its props and never passes them on. They do nothing; `defaultExpanded` works because it travels in `...props` |
 | `Tag.tsx` | `Tag` spreads `...props` and then sets `className`, so a `className` passed to `Tag` is thrown away |
 | `checkbox.css` | `grid-template-columns: var(--sds-size-space-300) 1fr` for a 16px box (see above) |
+| Type check | On a clean `npm ci` at commit `6afa4b4`, `npx tsc --noEmit` reports 7 errors, all in upstream files (`Button.tsx` 4, `AnchorOrButton.tsx` 2, `Tag.figma.ts` 1). Their `app:build` script starts with `tsc`, so it stops there. Storybook is not affected. The course files add none |
 | Storybook | Upstream is on Storybook 8.6; the other systems in the course are on 10 |

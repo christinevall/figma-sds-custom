@@ -2370,5 +2370,331 @@
       ]
     },
     "description": "Contract — src/ui/compositions/Forms/Forms.tsx (FormBox): a Form in a bordered box. Everything inside is a real instance: InputField, CheckboxField, Button."
+  },
+  "$pages": {
+    "Button": {
+      "description": "Buttons trigger actions. Button and ButtonDanger carry a label, IconButton and DestructiveIconButton an icon only, ButtonGroup lays buttons out.",
+      "gaps": [
+        "Hover, pressed and focus are states in code (data-hovered …), not props, so they are not variants.",
+        "Small buttons: the code sets line-height 1 on font/body-small and there is no single-line small style, so the text has its fields bound one by one instead of a text style.",
+        "An icon inside a button takes the button's text colour (a color/text variable on a stroke). That is what the code does.",
+        "Icon sizes 14 and 16 come from the type scale (typography/scale/02 and 03), as in code."
+      ]
+    },
+    "Tag": {
+      "description": "Tags label things. Tag is static (and removable), TagButton is pressable, TagToggle lives in a TagToggleGroup and can be selected.",
+      "gaps": [
+        "Hover, pressed and focus are states in code (data-hovered …), not props, so they are not variants.",
+        "TagToggle's isSelected and isDisabled are set by the group in code (selectedKeys, disabledKeys)."
+      ]
+    },
+    "Input": {
+      "description": "A single-line text field with its label, description and error message.",
+      "gaps": [
+        "Vertical padding is calc(space-300 − stroke-border × 2) = 10px in code. No token can hold that, so it is a raw 10.",
+        "The label and description sit on margins in a CSS grid; here that is the frame's spacing, bound to size/space/200.",
+        "The focus border (border/brand/secondary) is a state, not drawn."
+      ]
+    },
+    "Textarea": {
+      "description": "A multi-line text field.",
+      "gaps": [
+        "The resize grip is browser chrome, not drawn. isResizable has no visible effect at rest.",
+        "Line height 1.4 comes from --global-line-height-paragraph, a raw value in code."
+      ]
+    },
+    "Select": {
+      "description": "A closed select field. The open list is a ListBox.",
+      "gaps": [
+        "Same 10px vertical padding as Input (a calc in code).",
+        "The list is positioned at runtime, so it is not part of this component."
+      ]
+    },
+    "Checkbox": {
+      "description": "A checkbox with label and description.",
+      "gaps": [
+        "The code's grid gives the 16px box a 12px column (space-300) and lets it overflow. Drawn the same way: column 1 is 12 wide and not clipped.",
+        "The box is centred on the label's first line by the grid; here the column has a small raw top padding instead.",
+        "In code the dash only shows when isSelected and isIndeterminate are both true."
+      ]
+    },
+    "Radio": {
+      "description": "One radio option. isSelected comes from the RadioGroup around it.",
+      "gaps": [
+        "Same grid translation as Checkbox."
+      ]
+    },
+    "Switch": {
+      "description": "An on/off switch with label and description.",
+      "gaps": [
+        "The track is calc(space-400 + space-600) = 40px wide in code: raw 40 here.",
+        "The thumb slides with a transition in code; drawn at rest."
+      ]
+    },
+    "Slider": {
+      "description": "A slider field with label, value output and description.",
+      "gaps": [
+        "Thumb and fill sit at the value (50 of 0–100). Resize on an instance for another value.",
+        "A range (two thumbs) is not drawn: the thumb count follows the length of the value array."
+      ]
+    },
+    "Search": {
+      "description": "A search input with a button that turns from search to clear.",
+      "gaps": [
+        "Right padding is calc(space-800 + space-100) = 36px: raw.",
+        "The suggestion list (results) opens at runtime and is not drawn."
+      ]
+    },
+    "Navigation": {
+      "description": "Navigation lays out NavigationPill or NavigationButton items.",
+      "gaps": [
+        "Hover, pressed and focus are states in code (data-hovered …), not props, so they are not variants."
+      ]
+    },
+    "Avatar": {
+      "description": "Avatar shows a picture or initials. AvatarGroup stacks them, AvatarBlock adds a name.",
+      "gaps": [
+        "Initials are SVG text that scales with the avatar in code. Here they are text at the computed size (9.6, 12.8, 16px), so they do not follow a resize.",
+        "The picture is a placeholder fill. Drop your own image on it.",
+        "AvatarGroup's negative spacing is a negative gap, bound to size/space/negative-*."
+      ]
+    },
+    "Notification": {
+      "description": "An inline message or alert.",
+      "gaps": [
+        "The dismiss button is an IconButton for message and a DestructiveIconButton for alert, as in code."
+      ]
+    },
+    "Accordion": {
+      "description": "AccordionItem opens and closes; Accordion groups items.",
+      "gaps": [
+        "The panel's height animates in code. Open shows the panel, closed has none.",
+        "AccordionItem drops isExpanded and isDisabled in code (they are taken out of the props and never passed on). isExpanded here maps to defaultExpanded."
+      ]
+    },
+    "Tabs": {
+      "description": "Tab is one tab; Tabs is the list with a panel.",
+      "gaps": [
+        "Hover, pressed and focus are states in code (data-hovered …), not props, so they are not variants.",
+        "The selection is set on the Tab here and on Tabs (selectedKey) in code."
+      ]
+    },
+    "Menu": {
+      "description": "The menu list that MenuButton or MenuTrigger opens, and its item.",
+      "gaps": [
+        "The popover around the menu is positioned at runtime.",
+        "The highlighted (keyboard focus / hover) item is a state, not drawn."
+      ]
+    },
+    "Dialog": {
+      "description": "The dialog surface with close button, title, description and actions.",
+      "gaps": [
+        "Width is calc(100% − 2 × space-400) capped at 32rem: drawn 512 wide.",
+        "The backdrop (DialogModal) and its blur are not drawn."
+      ]
+    },
+    "Tooltip": {
+      "description": "A small popover with an arrow.",
+      "gaps": [
+        "Placement is a prop, but where the tooltip lands is computed at runtime.",
+        "max-width is calc(32rem / 2) = 256px: raw."
+      ]
+    },
+    "Pagination": {
+      "description": "Previous, page numbers, next. All Buttons.",
+      "gaps": [
+        "PaginationList hides below the tablet breakpoint in code (useMediaQuery). Drawn at desktop width."
+      ]
+    },
+    "Text": {
+      "description": "Text blocks that combine text styles. For a single style, use the text style itself: font/body-base, font/heading …",
+      "gaps": [
+        "Text, TextSmall, TextStrong, TextHeading and the other one-style components are not mirrored: each is exactly one text style.",
+        "TextPrice's currency is font-size 0.6em in code: a raw size here."
+      ]
+    },
+    "Logo": {
+      "description": "The logo, as the code draws it.",
+      "gaps": [
+        "An SVG in code, imported as vectors. Its colours are raw."
+      ]
+    },
+    "Image": {
+      "description": "A picture with a size, an aspect ratio and optional rounding.",
+      "gaps": [
+        "Heights are 10rem, 20rem, 30rem in code: fixed sizes here, no token.",
+        "natural and fill depend on the picture and the container, so they are not drawn."
+      ]
+    },
+    "Card": {
+      "description": "Card is the generic container. PricingCard, ProductInfoCard, ReviewCard, StatsCard and TestimonialCard are built on it.",
+      "gaps": [
+        "Card's stroke is an inset box-shadow in code: an inside stroke here.",
+        "On phones every card goes vertical (useMediaQuery). Drawn at desktop width.",
+        "TextListItem asks for --sds-font-body, which theme.css never defines, so list items inherit their font."
+      ]
+    },
+    "Form": {
+      "description": "FormBox: a form in a bordered box, made of real InputField, CheckboxField and Button instances.",
+      "gaps": []
+    },
+    "Table": {
+      "description": "A data table: header, rows, cells.",
+      "gaps": [
+        "Auto layout has no table model. Rows are horizontal stacks and every cell has a fixed width, so a column does not grow with its content.",
+        "striped shades every other row with :nth-child in code: here it is a fill on those rows. Add a row and set its fill by hand.",
+        "Sorting indicators, selection checkboxes and drag handles only appear with React Aria props that change behaviour; not drawn."
+      ]
+    },
+    "Footer": {
+      "description": "The page footer, as the code ships it.",
+      "gaps": [
+        "The content (link lists, social links) is hard-coded in the component, not passed in. Change it in code.",
+        "Below the tablet breakpoint the lists get tighter (useMediaQuery). Drawn at desktop width.",
+        "The Flex grid (type=quarter) is percentage widths in code: drawn at the measured widths for a 1200px page."
+      ]
+    }
+  },
+  "Table": {
+    "page": "Table",
+    "source": "src/ui/primitives/Table/Table.tsx",
+    "width": 560,
+    "props": {
+      "dense": [
+        false,
+        true
+      ],
+      "grid": [
+        false,
+        true
+      ],
+      "striped": [
+        false,
+        true
+      ]
+    },
+    "root": "#mirror-root .table",
+    "mirror": {
+      "c": "Table",
+      "p": {
+        "$props": true,
+        "aria-label": "Files"
+      },
+      "k": [
+        {
+          "c": "TableHead",
+          "k": [
+            {
+              "c": "TableColumn",
+              "p": {
+                "isRowHeader": true
+              },
+              "k": [
+                "Name"
+              ]
+            },
+            {
+              "c": "TableColumn",
+              "k": [
+                "Type"
+              ]
+            },
+            {
+              "c": "TableColumn",
+              "k": [
+                "Date modified"
+              ]
+            }
+          ]
+        },
+        {
+          "c": "TableBody",
+          "k": [
+            {
+              "c": "TableRow",
+              "k": [
+                {
+                  "c": "TableCell",
+                  "k": [
+                    "Reports"
+                  ]
+                },
+                {
+                  "c": "TableCell",
+                  "k": [
+                    "Folder"
+                  ]
+                },
+                {
+                  "c": "TableCell",
+                  "k": [
+                    "6/7/2026"
+                  ]
+                }
+              ]
+            },
+            {
+              "c": "TableRow",
+              "k": [
+                {
+                  "c": "TableCell",
+                  "k": [
+                    "Invoices"
+                  ]
+                },
+                {
+                  "c": "TableCell",
+                  "k": [
+                    "Folder"
+                  ]
+                },
+                {
+                  "c": "TableCell",
+                  "k": [
+                    "4/7/2026"
+                  ]
+                }
+              ]
+            },
+            {
+              "c": "TableRow",
+              "k": [
+                {
+                  "c": "TableCell",
+                  "k": [
+                    "notes.txt"
+                  ]
+                },
+                {
+                  "c": "TableCell",
+                  "k": [
+                    "Text file"
+                  ]
+                },
+                {
+                  "c": "TableCell",
+                  "k": [
+                    "11/20/2025"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "cols": 2,
+    "description": "Contract — src/ui/primitives/Table/Table.tsx (Table, TableHead, TableColumn, TableBody, TableRow, TableCell): dense, grid, striped = false|true (default false); bleed is not drawn. Three columns and three rows of sample content. Column widths are fixed at what the browser gave them: select a cell to edit its text, resize a column by hand."
+  },
+  "Footer": {
+    "page": "Footer",
+    "source": "src/ui/compositions/Footers/Footers.tsx",
+    "width": 1200,
+    "props": {},
+    "mirror": {
+      "c": "Footer"
+    },
+    "wait": 700,
+    "description": "Contract — src/ui/compositions/Footers/Footers.tsx (Footer): no props of its own beyond Section's. The link lists and social buttons are written into the component in code, so they are fixed content here too. The social buttons are real IconButton instances."
   }
 }

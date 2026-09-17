@@ -84,12 +84,13 @@ globalThis.__sds = (() => {
     const ratio = ty.lh === 'normal' ? 'normal' : Math.round((ty.lh / ty.size) * 100) / 100;
     const lhOf = (st) => (st.lineHeight.unit === 'AUTO' ? 'normal' : st.lineHeight.unit === 'PERCENT' ? st.lineHeight.value / 100 : st.lineHeight.value / st.fontSize);
     // the single-line twin carries line-height: 1 where one exists
-    if (style && ratio === 1 && lhOf(style) !== 1) { const single = S.text.get(want.replace('font/', 'font/single-line/')); if (single) style = single; }
+    if (style && ratio === 1 && Math.abs((typeof lhOf(style) === 'number' ? lhOf(style) : 0) - 1) > 0.02) { const single = S.text.get(want.replace('font/', 'font/single-line/')); if (single) style = single; }
     if (style) {
       await loadFont(style.fontName);
       n.fontName = { family: style.fontName.family, style: style.fontName.style };
       n.characters = t.text;
-      if (lhOf(style) === ratio) await n.setTextStyleIdAsync(style.id);
+      const sameLh = lhOf(style) === ratio || (typeof ratio === 'number' && typeof lhOf(style) === 'number' && Math.abs(lhOf(style) - ratio) < 0.02); // 160% arrives as 1.600000023841858
+      if (sameLh) await n.setTextStyleIdAsync(style.id);
       else {
         // One field differs from the style (line height). Figma cannot override one field of a
         // text style, so bind the style's own variables one by one and keep the line height raw.
@@ -498,6 +499,7 @@ globalThis.__sds = (() => {
     if (page.findOne((n) => (n.type === 'COMPONENT_SET' || n.type === 'COMPONENT') && n.name === def.name)) throw new Error(`${def.name} is already on page ${def.page} — update it, do not build it twice`);
     const bottom = page.children.reduce((m, n) => Math.max(m, n.y + n.height), 0);
     const items = [], report = { raw: new Set(), type: new Set(), layout: new Set(), size: [] }; const t0 = Date.now(); const ms = [];
+    try {
     for (const it of unpack(def.items)) {
       expandValues(it.spec);
       const t1 = Date.now();
@@ -508,6 +510,7 @@ globalThis.__sds = (() => {
       r.report.raw.forEach((x) => report.raw.add(x)); r.report.type.forEach((x) => report.type.add(x)); r.report.layout.forEach((x) => report.layout.add(x));
       r.report.size.forEach((x) => report.size.push(`[${label}] ${x}`));
     }
+    } catch (e) { for (const it of items) (await figma.getNodeByIdAsync(it.id))?.remove(); throw e; } // a failed build leaves nothing behind
     const set = await variants(def.name, items, { ...def, x: 40, y: bottom ? bottom + 96 : 40 });
     return { ...set, ms: { total: Date.now() - t0, perVariant: ms }, report: { raw: [...report.raw], type: [...report.type], layout: [...report.layout], size: report.size } };
   }
