@@ -4,7 +4,7 @@ import readme from "../../../README.md?raw";
 
 export const REPO = "https://github.com/christinevall/figma-sds-custom/blob/main/";
 export const section = readme
-  .slice(readme.indexOf("## In plain words"), readme.indexOf("---\n\n*Figma's original README"))
+  .slice(readme.indexOf("## In plain words"), readme.indexOf("## Run it on your computer"))
   .replace(/\]\((?!https?:)([^)]+)\)/g, (m, path) => `](${REPO}${path})`);
 
 export const ORDER = `
