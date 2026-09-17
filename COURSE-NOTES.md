@@ -77,7 +77,9 @@ that file. That is fine, and sometimes the point. Do it on purpose, and write
 it down in `docs/decisions.md`.
 
 The remote is called `upstream` and its push address is disabled, so nothing
-here can be pushed to Figma's repository by accident. There is no `origin` yet.
+here can be pushed to Figma's repository by accident. `origin` is
+https://github.com/christinevall/figma-sds-custom (a fork of figma/sds). Every push
+to `main` publishes Storybook to https://christinevall.github.io/figma-sds-custom/
 
 ## What makes this system different from 01, 02 and 03
 
