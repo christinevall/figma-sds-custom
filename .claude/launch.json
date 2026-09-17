@@ -2,7 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "04-figma-sds storybook",
+      "name": "04-figma-sds-custom storybook",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["storybook", "dev", "-p", "6004", "--no-open"],
       "port": 6004

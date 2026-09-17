@@ -6,7 +6,7 @@ export default create({
   fontBase: '"Inter", sans-serif',
   fontCode: '"Roboto Mono", monospace',
 
-  brandTitle: "Figma SDS",
+  brandTitle: "Figma SDS, customized",
   brandUrl: "https://figma.com",
   brandTarget: "_self",
 

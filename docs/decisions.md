@@ -4,6 +4,9 @@ Decisions that shape this system, with the reason. Newest first. Anything Figma 
 
 ## 2026-09-17
 
+**Name: "Figma SDS, customized", folder `04-figma-sds-custom`.**
+It has to be obvious that the system is Figma's and that Christine changes and adds to it. Future GitHub repo: `figma-sds-custom`. The MIT licence and Figma's copyright stay in `LICENSE`.
+
 **The stack, for beginners, at the top of `README.md`.**
 Christine wanted it where people land first. It is a block above Figma's text, which stays word for word. On an upstream merge, a README conflict is resolved by keeping both.
 

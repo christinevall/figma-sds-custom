@@ -1,4 +1,4 @@
-# Course notes — system 04
+# Course notes — system 04 · Figma SDS, customized
 
 > **This file is ours. The components, tokens and stories are Figma's.**
 > SDS is [github.com/figma/sds](https://github.com/figma/sds), MIT, by Figma.

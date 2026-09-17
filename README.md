@@ -1,5 +1,8 @@
-# Simple Design System (alpha)
+# Figma Simple Design System, customized
 
+> **Based on [figma/sds](https://github.com/figma/sds) (MIT, © Figma), customized by Christine Vallaure.**
+> The components, tokens and stories are Figma's. What was changed or added is marked, and listed in [`COURSE-NOTES.md`](COURSE-NOTES.md).
+>
 > **Course edition — system 04 of the *AI Design System* course by moonlearning.io.**
 > Everything below the line "Figma's original README" is Figma's own text, unchanged.
 > What the course added, and why, is in [`COURSE-NOTES.md`](COURSE-NOTES.md).
