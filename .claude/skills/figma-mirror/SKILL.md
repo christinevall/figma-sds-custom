@@ -119,6 +119,20 @@ that contains it is built.**
 - `figma.createFrame()` lands on the *current* page until the builder moves it.
   A failed build can leave stray frames on the Cover page: check it at the end.
 
+## Always, before you finish
+
+Update **`figma/GAPS.md` → "Status, open points and uncertainties"** in the same
+commit as the work. Not optional, and not replaced by a summary in chat:
+
+- what was checked, and how (size report, token report, looked at, not looked at);
+- every difference left in, with both numbers;
+- everything done by hand in Figma that a rebuild would not reproduce;
+- everything not verified or not understood, written as uncertain;
+- anything the next person needs to know to work on the file.
+
+A component page's own notes (`$pages` in `contracts.json`, shown in its
+documentation frame) get the designer-facing part of the same facts.
+
 ## When to stop
 
 Stop and ask, rather than invent, when the code does not answer the question:

@@ -6,6 +6,10 @@ every value that does not end in exactly one `--sds-*` token, and the builder
 reports every layer whose size differs from the browser's by more than a pixel.
 Anything not listed here is expected to match.
 
+**Read the last section first** if you are about to rely on this file or rebuild
+it: [Status, open points and uncertainties](#status-open-points-and-uncertainties)
+says what was checked, what was only assumed, and what was fixed by hand.
+
 How to read the "How to deal with it" column: **keep** means the difference is
 accepted and documented; **code** means the real fix is a change in the code
 (upstream's, so: an issue or a pull request for Figma, not an edit here);
@@ -124,3 +128,77 @@ Not ours to fix here. Each is worth an issue on `figma/sds`.
 | `Accordion.tsx` | Inside a `DisclosureGroup` an item's `defaultExpanded` is ignored (the group owns the state through `defaultExpandedKeys`), so the only way to open an `AccordionItem` in an `Accordion` is a key on the group |
 | Type check | On a clean `npm ci` at commit `6afa4b4`, `npx tsc --noEmit` reports 7 errors, all in upstream files (`Button.tsx` 4, `AnchorOrButton.tsx` 2, `Tag.figma.ts` 1). Their `app:build` script starts with `tsc`, so it stops there. Storybook is not affected. The course files add none |
 | Storybook | Upstream is on Storybook 8.6. Upgraded here to 10 (2026-09-17) for the MCP server; see `docs/decisions.md` |
+
+## Status, open points and uncertainties
+
+Last updated 2026-09-18. The tables above say where Figma *cannot* match the
+code. This section says how sure we are about the rest. **It is always kept:**
+every mirror session ends by updating it (see "The rule" at the bottom).
+
+### What was checked, and how
+
+| Check | How | Covers |
+| --- | --- | --- |
+| Size | The builder compares every layer with the browser's box: more than 1px off (plus 0.5px per text layer inside) is reported | All 46 components, every variant |
+| Tokens | The builder lists every value that is not bound to a variable or style | All 46 |
+| Look | A screenshot of each component set, read by eye against what the code should draw. **Not** overlaid on a browser screenshot | The 29 sets built on 2026-09-18, one by one. The first 17 by the earlier session (Button page, CheckboxField, SliderField, Search looked at; the others size-checked only) |
+| Upstream snapshot | `check-upstream.mjs --write` after the build: 333 variables, 16 text styles, 15 effect styles, 287 icons, 46 components | Code ↔ manifest, not Figma ↔ code |
+| Storybook | The public build passed after the push | Build only |
+
+### Small differences left in (measured, accepted)
+
+| Where | Figma | Browser | Why |
+| --- | --- | --- | --- |
+| Any hugging text: a Button label, "Tab three", `⌘K` | 75, 97, 32 wide | 73.29, 95.55, 30.75 | Figma and Chrome set Inter a pixel or two apart |
+| Text at line-height `normal` | 19 tall (16px Inter) | 19.5 | Same. It adds up: MenuItem 66 vs 67, Menu 223 vs 226 |
+| `card-asset` in a horizontal Card | 160 tall | 168.69 | The browser stretches the empty wrapper to the row. The image inside is 160 in both |
+| Notification's icon wrapper | 20 tall | 24 | Built before the probe learned the line box around an inline icon. Nothing visible moves. A rebuild fixes it |
+| TextPrice `$` | At the line's top | 2px lower (`<sup>`) | Inline formatting has no auto-layout equivalent |
+| ProductInfoCard's Image | The default Image variant, resized to 232 | `size="natural"` | `natural` and `fill` are not drawn as Image variants |
+| Tooltip | At rest | `position: absolute` with runtime insets | Position only exists while open |
+| Dialog sheet, Pagination, Footer | 1280, 1248, 1200 wide | `100%` | The mirror's viewport. Resize the instance |
+
+### Fixed by hand in Figma
+
+A rebuild from the pipeline would **not** reproduce the first two. The rest are
+in the pipeline now, but see the first row of the next table.
+
+| What | Done in Figma | In the pipeline? |
+| --- | --- | --- |
+| AvatarGroup | Avatars moved into an `avatars` frame spaced by the spacing token, group gap bound to `space/300`, `+2` made one text layer wired to `overflow`, drop shadow on the avatars of the negative variants | **No.** The probe now merges `+` and `2` by itself; the structure and the shadow are hand work. Open |
+| Footer logo | Stroke bound to `color/icon/brand/on-brand` | **No.** The brand Section sets `--logo-color`. The probe carries an inherited `color` into a nested instance, but not inherited custom properties (`--logo-color`, `--icon-color`). Open, and worth checking wherever an icon or logo instance sits on a brand surface |
+| SliderField and NavigationPill labels | Text set to hug (it was fill-width inside a hugging frame, so a longer label would have wrapped) | Cause not found. The builder's rule should already give a hug. A scan of the whole library found only these two |
+| TextareaField (top alignment), Tooltip (centred text hugs, arrow above the border), Dialog sheet and Pagination (fixed width), Footer (270px columns), ProductInfoCard (description fills), PricingCard (brand price is on-brand) | Patched in place after the build | Yes, as probe or builder rules |
+| Cover | Component count typed as 48, corrected to 46 (the contracts file has two entries, `$insts` and `$pages`, that are not components). Code Connect note set to fill | The numbers on the Cover are **passed in by hand** when the script runs. Count components, do not count contract keys |
+
+### Not verified, or not sure
+
+| What | Why it matters |
+| --- | --- |
+| **The committed builder and probe have not run end to end.** On 2026-09-18 Figma ran the builder installed at the start of the session plus patches applied live; each patch was then written into the source. The source is syntax-checked, not executed | The first rebuild of any component is the real test of those rules. Build one simple and one complex component (Tab, Card) and compare the reports before trusting a batch |
+| Dark mode | No component built on 2026-09-18 was looked at in Dark. Every colour is bound to a semantic variable, so it should follow. Not seen |
+| Component properties in use | The builder reports how many layers each property is wired to. Nobody has toggled them on an instance. Known problem: **MenuItem with `hasIcon=false` keeps the empty fill column, so the label stays on the right; in code, without an icon, the label is on the left** |
+| Boolean properties and layout in general | Hiding a part (`hasDescription`, `hasLabel`, `asset`) was not checked against the code's layout without that part |
+| Exposed nested instances | Set by the builder, not tried |
+| Using the library from another file | The file is not published as a library or to the Community. Nothing was instantiated outside it |
+| The first 17 components | Built and checked by the earlier session. This session only scanned them for one text-sizing pattern |
+| Icons, variables, styles | Not re-checked in Figma this session. The manifest matches the code |
+| The thumbnail | Holds **pictures** of the Overview and Tokens sheets. They go stale when a sheet changes: re-export them (the thumbnail step of `cover.figma.js`) |
+| Images | Placeholder fills everywhere. The plugin cannot load a local file |
+
+### Things to know when working on it
+
+- **Figma must be on screen.** With its window hidden, `loadFontAsync` stalls for 15 to 30 seconds every few calls. Load each font once (the builder and the cover script do).
+- **The Browser pane must be visible** or a probe of a large component takes minutes. Start it in the background and poll.
+- **Code cannot be fetched into the plugin.** Not from localhost, and a public URL is refused by the harness. Scripts and large specs are pasted; over about 10 KB use `scripts/figma-mirror/lz.mjs`.
+- **A plugin restart forgets the installed builder.** Re-install it (and the cover script) before the next call.
+- **New frames land on the current page first.** A failed build can leave strays on whatever page is open: look at the Cover page at the end of a session.
+- **A probe can fail once for no reason** while the pane is hidden (a detached document, "nothing drawn"). Run it again before debugging.
+
+### The rule
+
+Every session that touches the mirror ends by updating this section, in the
+same commit as the work: what was checked and how, what was left different and
+by how much, what was done by hand, and what is not known. A chat message is
+not documentation. If something is uncertain, it is written here as uncertain,
+not left out.

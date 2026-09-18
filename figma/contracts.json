@@ -2275,9 +2275,10 @@
     },
     "text": {
       "heading": "Product",
-      "description": "A short description of the product."
+      "description": "A short description of the product.",
+      "priceAndRating": "$5 (4.7 rating)"
     },
-    "description": "Contract — src/ui/compositions/Cards/Cards.tsx (ProductInfoCard): asset, heading, price, rating, description are props."
+    "description": "Contract — src/ui/compositions/Cards/Cards.tsx (ProductInfoCard): asset, heading, price, rating, description are props. price and rating render as one line, \"$5 (4.7 rating)\": one text property here."
   },
   "ReviewCard": {
     "page": "Card",
