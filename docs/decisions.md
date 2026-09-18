@@ -2,6 +2,19 @@
 
 Decisions that shape this system, with the reason. Newest first. Anything Figma cannot express lives in `figma/GAPS.md`, not here.
 
+## 2026-09-18
+
+**The Figma library is complete: 46 components, 223 variants, Cover, Tokens, a documentation frame on every page.**
+The second half of the components (Textarea to Footer) went in through the same probe → builder pipeline. Everything the pipeline could not express was fixed in the pipeline, not by hand in Figma, so a rebuild gives the same result; the few hand edits (the AvatarGroup restructure) are recorded in `figma/GAPS.md`. What the pipeline learned, in `probe.browser.js` and `builder.figma.js`: a textarea's `rows` height and top alignment; the line box around an inline icon; a closed panel (`max-height: 0`) is a hidden layer; `margin: 0 auto`, side margins and per-child margin tokens become wrapper frames; a CSS grid with a spanning child keeps its column positions; a raw SVG keeps its fill or stroke token, rotation and z-index, and is rescaled so strokes follow; inline `<sup>` text is a row; adjacent text nodes on one line are one text layer; a widthless flex child that takes the rest of a row (or column) fills; an instance squeezed by flex is resized; a nested instance takes the text colour it inherits; a `100%` root and a `max-width` child are fixed at the measured size; a one-line centred text as wide as its block hugs.
+
+**Nested components are instances.** `figma/contracts.json` `$insts` now covers Image, AvatarBlock, TextPrice, TextContentHeading, TextContentTitle, Notification, AccordionItem, MenuItem and Logo, so the cards and the menu hold real instances.
+
+**Menu without sections, Accordion opened through the group.** `MenuSection` and `MenuHeader` are plain divs that a React Aria `Menu` drops, so the Menu is composed as upstream's own story is. An `AccordionItem` inside an `Accordion` opens only through `defaultExpandedKeys` on the group. Both are in GAPS as upstream findings.
+
+**Big calls travel compressed.** The harness refuses `fetch` of code from a public URL inside `figma_execute`, and the plugin cannot reach localhost, so a 41 KB Table spec was carried as a 7 KB literal with an eight-line decoder that checks the length before running (`scripts/figma-mirror/lz.mjs`).
+
+**Cover updated:** Storybook 10, the public Storybook and the GitHub fork as links, a Code Connect note (SDS ships the files, they need an Organization plan, the names here already match the code).
+
 ## 2026-09-17
 
 **Sidebar in reading order, with plain group names.**

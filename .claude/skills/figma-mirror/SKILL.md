@@ -35,6 +35,7 @@ Storybook :6004 ──────┴─probe.browser.js──▶ spec ──bui
 | `scripts/figma-mirror/probe.browser.js` | the Storybook page | measures a rendered component and follows each value back to its `--sds-*` token |
 | `scripts/figma-mirror/builder.figma.js` | Figma (Console MCP) | spec → auto-layout frames with every value bound, variants, properties; audits size against the browser |
 | `scripts/figma-mirror/pack.mjs` | Node | strips comments so the builder fits one `figma_execute` call |
+| `scripts/figma-mirror/lz.mjs` | Node | squeezes a call that is too big to carry (a 41 KB Table spec → 7 KB): prints a literal plus its decoder, which checks the length before running |
 | `scripts/figma-mirror/check-upstream.mjs` | Node | what changed in the code since the library was built |
 | `figma/contracts.json` | — | one entry per Figma component: props → variants, what to render, which text / boolean / swap properties |
 | `figma/GAPS.md` | — | what Figma cannot express, and what was done instead |
@@ -104,6 +105,19 @@ that contains it is built.**
   lay the variant grid out **after** wiring properties.
 - `display: contents`, visually-hidden inputs and `display: none` icons are
   skipped by the probe. If a layer is missing, check there first.
+- The harness refuses `fetch` of code from a public URL inside `figma_execute`
+  ("code from external"), so the builder and the cover script travel as text.
+  For anything over ~10 KB run it through `lz.mjs` and paste that instead.
+- The builder's `component()` uses its own `unpack`; a variant that *drops* a key
+  (a Card with no radius) needs the source's prune fix. If you run an older
+  installed builder, call `def.items = __sds.unpack(def.items)` before
+  `__sds.component(def)`.
+- While the session is not on screen the Browser pane is hidden and a probe of
+  a big component takes a minute or two. Start it in the background
+  (`window.pending = m.figmaCall(name).then(...)`) and poll, instead of waiting
+  in one `javascript_tool` call (it times out at 45 s).
+- `figma.createFrame()` lands on the *current* page until the builder moves it.
+  A failed build can leave stray frames on the Cover page: check it at the end.
 
 ## When to stop
 

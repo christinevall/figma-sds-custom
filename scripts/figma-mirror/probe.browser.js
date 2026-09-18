@@ -237,7 +237,8 @@ function specFor(el, ctx, rootRect, parent) {
   if (r.width <= 1.5 && r.height <= 1.5 && (cs.clip !== 'auto' || /inset\(50%\)/.test(cs.clipPath) || cs.overflow === 'hidden')) return null;
   const tag = el.tagName.toLowerCase();
   const cls = typeof el.className === 'string' ? el.className : el.getAttribute('class') ?? '';
-  const s = { t: tag, c: cls.split(' ').filter((x) => !x.startsWith('layer-') && !x.startsWith('inst-')).slice(0, 3).join(' '), box: [num(r.left - rootRect.left), num(r.top - rootRect.top), num(r.width), num(r.height)] };
+  // the first class names the layer; `text-align-*` is a utility, not an identity (TextContentTitle's subtitle is `text-subtitle`)
+  const s = { t: tag, c: cls.split(' ').filter((x) => !x.startsWith('layer-') && !x.startsWith('inst-') && !x.startsWith('text-align-')).slice(0, 3).join(' '), box: [num(r.left - rootRect.left), num(r.top - rootRect.top), num(r.width), num(r.height)] };
   const layer = cls.split(' ').find((x) => x.startsWith('layer-')); if (layer) s.name = layer.slice(6);
   let inst = cls.split(' ').find((x) => x.startsWith('inst-'));
   if (!inst && parent) for (const [sel, hint] of Object.entries(ctx.insts ?? {})) if (el.matches(sel)) { inst = `inst-${btoa(unescape(encodeURIComponent(JSON.stringify(resolveHint(el, hint)))))}`; break; }
@@ -245,6 +246,8 @@ function specFor(el, ctx, rootRect, parent) {
     s.inst = JSON.parse(decodeURIComponent(escape(atob(inst.slice(5))))); if (s.inst.layer) { s.name = s.inst.layer; }
     const ics = win.getComputedStyle(el); s.disp = ics.display; if (ics.flexGrow !== '0') s.grow = num(ics.flexGrow); if (ics.position !== 'static') s.pos = ics.position;
     const iw = cas.decl(el, ['width']); if (iw && !CSS_WIDE.includes(iw.value) && iw.value !== 'auto') s.width = value(cas.expand(el, iw.value), ics.width);
+    // a colour the instance inherits from outside itself (a brand Card's `on-brand` on its TextPrice): an override on its text
+    const col = cas.inherited(el, ['color']); if (col && col.from !== el && !el.contains(col.from)) s.textColor = value(cas.expand(col.from, col.value), ics.color);
     return s;
   }
   const note = (prop, val) => { if (val.raw !== undefined || val.missing) gaps.push({ el: `${tag}.${cls.split(' ')[0]}`, prop, declared: val.raw ?? val.missing, computed: val.v, kind: val.missing ? 'undefined token' : /calc\(/.test(val.raw) ? 'calc' : 'raw' }); return val; };
@@ -255,6 +258,8 @@ function specFor(el, ctx, rootRect, parent) {
 
   // visibility / opacity
   if (cs.visibility === 'hidden') s.hidden = true;
+  // a panel collapsed to nothing (`max-height: 0` and overflow hidden, the closed Accordion): a hidden layer, so the closed state has none
+  if (num(cs.maxHeight) === 0 && (cs.overflowY === 'hidden' || cs.overflow === 'hidden')) s.hidden = true;
   if (cs.opacity !== '1') s.opacity = note('opacity', value(get(['opacity'], 'opacity').ex, num(cs.opacity)));
 
   // icons and other svg
@@ -280,7 +285,26 @@ function specFor(el, ctx, rootRect, parent) {
       s.type = { style: { v: `${tcs.fontWeight} ${num(parseFloat(tcs.fontSize) * scale)}px ${tcs.fontFamily}`, raw: `SVG text, ${tcs.fontSize} in a ${el.viewBox?.baseVal?.width}-unit viewBox` }, color: note('fill', value(fill ? cas.expand(t, fill.value) : null, tcs.fill)), size: num(parseFloat(tcs.fontSize) * scale), lh: 'normal', ws: 'nowrap', align: 'center' };
       gaps.push({ el: 'svg text', prop: 'font-size', declared: `${tcs.fontSize} inside viewBox ${el.getAttribute('viewBox')}`, computed: `${s.type.size}px`, kind: 'raw' });
       if (cs.position !== 'static') { s.pos = cs.position; }
-    } else s.svg = el.outerHTML;
+    } else {
+      // a shape drawn in place (the Tooltip arrow): its fill, rotation and offset come from CSS
+      s.svg = el.outerHTML;
+      const fill = cas.decl(el, ['fill']); if (fill) s.ink = note('fill', value(cas.expand(el, fill.value), cs.fill));
+      // a stroke or fill written as `var(--x)` on the paths (the Logo): follow the variable to its token, and give the
+      // markup the computed colour so the import draws it
+      const varsUsed = [...new Set([...s.svg.matchAll(/(stroke|fill)="var\((--[\w-]+)\)"/g)].map((m) => `${m[1]}|${m[2]}`))];
+      for (const pair of varsUsed) {
+        const [attr, name] = pair.split('|'); const d = cas.inherited(el, [name]); const computed = cs.getPropertyValue(name).trim();
+        const val = value(d ? cas.expand(d.from, d.value) : null, computed); note(name, val);
+        s[attr === 'stroke' ? 'stroke' : 'ink'] = val; s.svg = s.svg.replaceAll(`${attr}="var(${name})"`, `${attr}="${computed || 'currentColor'}"`);
+      }
+      if (cs.transform && cs.transform !== 'none') {
+        const mt = new win.DOMMatrix(cs.transform); const deg = Math.round(Math.atan2(mt.b, mt.a) * 180 / Math.PI);
+        if (deg) s.rot = deg; // CSS degrees, clockwise
+        s.pos = 'absolute'; // a translate() moves it off its flow position: draw it where it is
+      }
+      if (cs.position !== 'static') s.pos = cs.position;
+      s.svgSize = [num(parseFloat(cs.width)), num(parseFloat(cs.height))]; // the unrotated size (the box is the rotated bounds)
+    }
     return s;
   }
   if (tag === 'img') { s.img = { fit: cs.objectFit }; } // the picture itself cannot travel: Figma gets a placeholder fill
@@ -291,8 +315,12 @@ function specFor(el, ctx, rootRect, parent) {
   // Auto layout has no table model, so a column does not grow when its content does.
   if (disp === 'table-row') { disp = 'flex'; s.tableRow = true; }
   if (disp === 'table-cell') { s.width = { v: `${num(r.width)}px`, raw: 'table-cell' }; if (!ctx.tableNoted) { ctx.tableNoted = true; gaps.push({ el: 'table', prop: 'display: table', declared: 'column widths follow their content', computed: 'fixed at the measured width', kind: 'layout' }); } }
+  // Inline flow: a block whose children are inline elements next to text (TextPrice's <sup>$</sup>50) is one line, so a row.
+  // Its children sit on the line's top; a raised <sup> is 2px lower, close enough for MIN.
+  if (!disp.includes('flex') && !disp.includes('grid') && el.children.length && [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) && [...el.children].every((c) => win.getComputedStyle(c).display.startsWith('inline'))) { disp = 'flex'; s.inlineFlow = true; }
   s.disp = disp;
-  if (disp.includes('flex')) {
+  if (s.inlineFlow) { s.dir = 'row'; s.ai = 'flex-start'; s.jc = 'flex-start'; }
+  if (disp.includes('flex') && !s.inlineFlow) {
     s.dir = s.tableRow ? 'row' : cs.flexDirection; if (cs.flexWrap !== 'nowrap' && !s.tableRow) s.wrap = cs.flexWrap;
     s.ai = s.tableRow ? 'stretch' : cs.alignItems; s.jc = s.tableRow ? 'flex-start' : cs.justifyContent;
   } else if (disp.includes('grid')) {
@@ -308,12 +336,21 @@ function specFor(el, ctx, rootRect, parent) {
       s[k] = note(cprop, value(ex, num(cs.getPropertyValue(cprop))));
     }
   }
-  if (cs.position !== 'static') { s.pos = cs.position; if (cs.position === 'absolute' || cs.position === 'fixed') s.inset = [cs.top, cs.right, cs.bottom, cs.left]; }
+  if (cs.position !== 'static') { s.pos = cs.position; if (cs.position === 'absolute' || cs.position === 'fixed') s.inset = [cs.top, cs.right, cs.bottom, cs.left]; if (cs.zIndex !== 'auto' && num(cs.zIndex) > 0) s.z = num(cs.zIndex); }
   if (cs.flexGrow !== '0') s.grow = num(cs.flexGrow);
   if (cs.alignSelf !== 'auto' && cs.alignSelf !== 'normal') s.alignSelf = cs.alignSelf;
   if (cs.overflow !== 'visible') s.overflow = cs.overflow;
   for (const p of ['width', 'height', 'min-width', 'min-height', 'max-width', 'max-height', 'aspect-ratio']) {
     const g = get([p], p); if (g.d && !['auto', 'none', 'unset', 'initial', 'inherit', 'revert', 'revert-layer'].includes(g.d.value)) { const val = value(g.ex, cs.getPropertyValue(p)); s[p] = /^[\d.]+%$/.test(val.raw ?? '') ? val : note(p, val); } // a percentage is not a gap: it becomes Fill
+  }
+  // a <textarea> is as tall as its `rows` (the browser's default is 2), not its one line of placeholder: a fixed height, no token.
+  // Its text always starts at the top: `align-items` does not apply to a textarea, whatever the stylesheet says.
+  if (tag === 'textarea') { if (!s.height) s.height = note('height', { v: `${num(r.height)}px`, raw: `rows=${el.rows}` }); s.ai = 'flex-start'; }
+  // an inline icon in a block (the Accordion chevron's <span>, the Notification icon's) sits in a line box taller than itself:
+  // the box is real, the icon stays at the top. A fixed height, no token
+  if (!s.height && !cs.display.includes('flex') && !cs.display.includes('grid') && el.children.length && [...el.children].every((c) => c.tagName.toLowerCase() === 'svg')) {
+    const tallest = Math.max(...[...el.children].map((c) => c.getBoundingClientRect().height));
+    if (r.height - tallest > 0.5) s.height = note('height', { v: `${num(r.height)}px`, raw: `line box around a ${num(tallest)}px icon` });
   }
 
   // padding + margin (4 sides each)
@@ -397,10 +434,18 @@ function specFor(el, ctx, rootRect, parent) {
   pseudo('before');
   for (const n of el.childNodes) {
     if (n.nodeType === 3) {
-      const text = n.textContent.replace(/\s+/g, ' ').trim();
+      const raw = n.textContent.replace(/\s+/g, ' '); const text = raw.trim();
       if (!text) continue;
       const range = el.ownerDocument.createRange(); range.selectNodeContents(n); const tr = range.getBoundingClientRect();
-      kids.push({ t: '#text', text, box: [num(tr.left - rootRect.left), num(tr.top - rootRect.top), num(tr.width), num(tr.height)] });
+      const box = [num(tr.left - rootRect.left), num(tr.top - rootRect.top), num(tr.width), num(tr.height)];
+      // React renders `{price} ({rating} rating)` as several text nodes on one line: one text layer, not a stack
+      const prev = kids.at(-1);
+      if (prev && prev.t === '#text' && !prev.placeholder && Math.abs(prev.box[1] - box[1]) < 1) {
+        const glue = /^\s/.test(raw) || prev.spaceAfter ? ' ' : '';
+        prev.text += glue + text; prev.box = [prev.box[0], Math.min(prev.box[1], box[1]), num(box[0] + box[2] - prev.box[0]), Math.max(prev.box[3], box[3])];
+        prev.spaceAfter = /\s$/.test(raw); continue;
+      }
+      kids.push({ t: '#text', text, box, spaceAfter: /\s$/.test(raw) });
     } else if (n.nodeType === 1) {
       const k = specFor(n, ctx, rootRect, s);
       // display: contents draws no box of its own — its children belong to this element
@@ -441,6 +486,15 @@ function specFor(el, ctx, rootRect, parent) {
   // state, as the DOM carries it
   const data = [...el.attributes].filter((a) => /^data-(disabled|selected|hovered|pressed|invalid|open|expanded|focus|orientation|placeholder)/.test(a.name) || a.name === 'role').map((a) => `${a.name}${a.value && a.value !== 'true' ? `=${a.value}` : ''}`);
   if (data.length) s.attrs = data;
+  // The rest of a row. A flex child with no width of its own that reaches the row's end and wraps its text
+  // (the content of a horizontal Card) is sized by what is left, so in Figma it fills.
+  // In a column the same thing is a block as wide as the column, its text wrapping (the ProductInfoCard description).
+  if (parent && parent.disp?.includes('flex') && !s.width && !s.inst && !s.grow && cs.flexGrow === '0' && s.pos !== 'absolute') {
+    const row = (parent.dir ?? 'row').startsWith('row');
+    const rowEnd = parent.box[0] + parent.box[2] - (parent.pad?.[1]?.v ?? 0), colStart = parent.box[0] + (parent.pad?.[3]?.v ?? 0);
+    const wraps = [el, ...el.querySelectorAll('*')].some((x) => [...x.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) && x.getBoundingClientRect().height > parseFloat(win.getComputedStyle(x).fontSize) * 1.9);
+    if (wraps && Math.abs(s.box[0] + s.box[2] - rowEnd) < 1 && (row || Math.abs(s.box[0] - colStart) < 1)) { if (row) s.grow = 1; else s.width = { v: `${s.box[2]}px`, raw: '100%' }; }
+  }
   return s;
 }
 
@@ -520,7 +574,7 @@ function slim(s) {
   if (s.pos === 'relative' || s.pos === 'static') delete s.pos;
   if (s.c) s.c = s.c.split(' ')[0];
   if (s.type) { for (const k of ['family', 'weight', 'italic', 'lhDeclared']) delete s.type[k]; if (s.type.align === 'start') delete s.type.align; }
-  delete s.attrs;
+  delete s.attrs; delete s.spaceAfter;
   if (s.ink) delete s.ink.raw;
   for (const k of s.kids ?? []) slim(k);
   return s;

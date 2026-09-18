@@ -95,16 +95,18 @@ globalThis.__sds = (() => {
       n.fontName = { family: style.fontName.family, style: style.fontName.style };
       n.characters = t.text;
       const sameLh = lhOf(style) === ratio || (typeof ratio === 'number' && typeof lhOf(style) === 'number' && Math.abs(lhOf(style) - ratio) < 0.02); // 160% arrives as 1.600000023841858
-      if (sameLh) await n.setTextStyleIdAsync(style.id);
+      const sizeOverride = ty['override:font-size'] && Math.abs(ty.size - style.fontSize) > 0.5; // TextPrice's currency: `font-size: 0.6em` on top of the style
+      if (sameLh && !sizeOverride) await n.setTextStyleIdAsync(style.id);
       else {
-        // One field differs from the style (line height). Figma cannot override one field of a
-        // text style, so bind the style's own variables one by one and keep the line height raw.
+        // One field differs from the style (line height, or a font size). Figma cannot override one field of a
+        // text style, so bind the style's own variables one by one and keep that field raw.
         n.fontSize = style.fontSize;
-        for (const [field, alias] of Object.entries(style.boundVariables ?? {})) { const v = [...S.vars.values()].find((x) => x.id === alias.id); if (v) n.setBoundVariable(field, v); }
+        for (const [field, alias] of Object.entries(style.boundVariables ?? {})) { if (sizeOverride && field === 'fontSize') continue; const v = [...S.vars.values()].find((x) => x.id === alias.id); if (v) n.setBoundVariable(field, v); }
+        if (sizeOverride) { n.fontSize = ty.size; mark(n, 'fontSize'); rep.raw.push(`${n.name}: font-size ${ty['override:font-size']} of ${style.name} = ${ty.size}px`); }
         n.lineHeight = ratio === 'normal' ? { unit: 'AUTO' } : { unit: 'PERCENT', value: ratio * 100 };
         n.textDecoration = style.textDecoration;
         mark(n, 'textStyle'); n.setSharedPluginData('sds', 'textStyle', style.name);
-        rep.type.push(`${n.name}: ${style.name} at line-height ${ratio} (the style has ${lhOf(style)}) — fields bound one by one`);
+        if (!sameLh) rep.type.push(`${n.name}: ${style.name} at line-height ${ratio} (the style has ${lhOf(style)}) — fields bound one by one`);
       }
     } else {
       await loadFont({ family: 'Inter', style: 'Regular' });
@@ -158,6 +160,8 @@ globalThis.__sds = (() => {
       else full[key] = def.type === 'BOOLEAN' ? !!props[base] : String(props[base]);
     }
     if (Object.keys(full).length) inst.setProperties(full);
+    // a colour inherited from outside the instance (a brand Card's `on-brand` on its TextPrice): an override on its text layers
+    if (s.textColor) { const p = paint(s.textColor, rep, `${inst.name} inherited colour`); if (p) for (const t of inst.findAllWithCriteria({ types: ['TEXT'] })) t.fills = [p]; }
     inst.setSharedPluginData('sds', 'box', JSON.stringify(s.box));
     return inst;
   }
@@ -166,7 +170,20 @@ globalThis.__sds = (() => {
     if (s.t === '#text') return null; // handled by the owner
     if (s.icon) return F.iconNode(s, rep);
     if (s.inst) { const inst = F.instanceNode(s, rep); if (inst) return inst; }
-    if (s.svg) { const n = figma.createNodeFromSvg(s.svg); n.name = s.name ?? 'svg'; mark(n, 'svg'); return n; }
+    if (s.svg) {
+      // a shape drawn in place (the Tooltip arrow): the viewBox size becomes the CSS size, the fill is bound, then it is rotated
+      const n = figma.createNodeFromSvg(s.svg); n.name = 'shape'; mark(n, 'svg');
+      if (s.svgSize && n.width) n.rescale(Math.max(s.svgSize[0], 0.01) / n.width); // rescale, not resize: the strokes scale with the drawing (the Logo's 15-unit stroke)
+      if (s.ink) { const p = paint(s.ink, rep, `${s.name ?? 'svg'} fill`); if (p) for (const v of n.findAll((x) => 'fills' in x)) v.fills = [p]; }
+      if (s.stroke) { const p = paint(s.stroke, rep, `${s.name ?? 'svg'} stroke`); if (p) for (const v of n.findAll((x) => 'strokes' in x && x.strokes.length)) v.strokes = [p]; }
+      if (!s.rot) { n.name = s.name ?? 'svg'; return n; }
+      // rotated: a plain frame the size of the rotated bounds holds it, so the parent can place and size it like any box
+      const f = figma.createFrame(); f.name = s.name ?? 'svg'; f.fills = []; f.clipsContent = false; f.resize(Math.max(s.box[2], 0.01), Math.max(s.box[3], 0.01)); f.appendChild(n);
+      n.rotation = -s.rot; // CSS is clockwise, Figma counter-clockwise; Figma rotates around the unrotated origin
+      const [w, h] = s.svgSize ?? [n.width, n.height], r = ((s.rot % 360) + 360) % 360;
+      n.x = r === 180 || r === 90 ? (r === 180 ? w : h) : 0; n.y = r === 180 ? h : r === 270 ? w : 0;
+      return f;
+    }
 
     const f = figma.createFrame();
     f.name = layerName(s);
@@ -229,15 +246,31 @@ globalThis.__sds = (() => {
         // One line of text hugs. Filling a block that is exactly as wide as the text makes Figma wrap it
         // on a rounding error ("Label" became two lines). Centred or right-aligned text has to fill to align.
         const aligned = ['center', 'right', 'end'].includes(s.type.align);
-        if (oneLine && !aligned) n.textAutoResize = 'WIDTH_AND_HEIGHT';
+        // …unless the block is exactly as wide as the text (the Tooltip's centred lines): then the text hugs and the block aligns it
+        const snug = aligned && Math.abs(k.box[2] - (s.box[2] - (s.pad?.[1]?.v ?? 0) - (s.pad?.[3]?.v ?? 0))) < 1 && f.layoutMode === 'VERTICAL';
+        if (oneLine && (!aligned || snug)) { n.textAutoResize = 'WIDTH_AND_HEIGHT'; if (snug) f.counterAxisAlignItems = s.type.align === 'center' ? 'CENTER' : 'MAX'; }
         else { n.textAutoResize = 'HEIGHT'; n.layoutSizingHorizontal = 'FILL'; }
-      } else if (!abs && k.t !== 'svg') F.sizeChild(n, k, s, multiColumn ? false : row, multiColumn ? true : stretch);
+      } else if (!abs && k.t !== 'svg') {
+        F.sizeChild(n, k, s, multiColumn ? false : row, multiColumn ? true : stretch);
+        // `margin: 0 auto` on a child narrower than its column (the open Accordion panel): Figma has no per-child
+        // alignment, so a wrapper that fills the column centres it. Named like the other margin wrappers.
+        const auto = (i) => k.margin?.[i]?.raw === 'auto';
+        if (!multiColumn && !row && auto(1) && auto(3) && n.layoutSizingHorizontal === 'FIXED') {
+          const w = figma.createFrame(); w.name = `${n.name} · margin`; w.fills = []; w.clipsContent = false; w.layoutMode = 'HORIZONTAL'; w.primaryAxisAlignItems = 'CENTER';
+          f.insertChild(f.children.indexOf(n), w); w.appendChild(n); w.layoutSizingHorizontal = 'FILL'; w.layoutSizingVertical = 'HUG';
+          made.find((m) => m.n === n).n = w; // spacing() below works on the wrapper
+          rep.layout.push(`${f.name}: margin auto around ${n.name} drawn as a centring wrapper`);
+        }
+      }
     }
     if (!multiColumn) F.spacing(f, s, made.filter((m) => !m.abs), row, rep);
+    // a positioned child with a z-index (the Tooltip arrow, over the dialog's border) goes on top, in DOM order among themselves
+    for (const m of made.filter((x) => x.abs && x.k.z).sort((a, b) => a.k.z - b.k.z)) f.appendChild(m.n);
 
     // own size, when nothing above decides it
     if (isRoot) {
-      const declared = s.width && !String(s.width.raw ?? '').endsWith('%');
+      // a declared width is kept, a `100%` one too (a root has no container: the measured width stands, the sheet Dialog is the viewport's)
+      const declared = !!s.width;
       const hugW = opts.rootW === 'fixed' ? false : opts.rootW === 'hug' ? !declared && kids.some((k) => k.pos !== 'absolute') : (s.disp?.startsWith('inline') || s.type?.ws === 'nowrap') && !declared;
       f.resize(Math.max(s.box[2], 0.01), Math.max(s.box[3], 0.01));
       f.layoutSizingHorizontal = hugW ? 'HUG' : 'FIXED';
@@ -295,17 +328,34 @@ globalThis.__sds = (() => {
     for (const m of sorted) { const last = rows.at(-1); if (last && m.k.box[1] < last.bottom - 0.5) { last.items.push(m); last.bottom = Math.max(last.bottom, m.k.box[1] + m.k.box[3]); } else rows.push({ items: [m], top: m.k.box[1], bottom: m.k.box[1] + m.k.box[3] }); }
     f.layoutMode = 'VERTICAL'; f.counterAxisAlignItems = 'MIN';
     const right = s.box[0] + s.box[2] - (s.pad?.[1]?.v ?? 0);
+    // Which column an item starts in, and what kind of track that is. An implicit track (more columns than
+    // declared, MenuItem's icon pushes everything one over) is `auto`, so it hugs.
+    const cols = s.grid.cols, kind = (i) => s.grid.decl?.[i] ?? (i >= (s.grid.decl?.length ?? 0) ? 'hug' : i === cols.length - 1 ? 'fill' : 'fixed');
+    const colOf = (m) => { let x = s.box[0] + (s.pad?.[3]?.v ?? 0), i = 0; for (; i < cols.length && m.k.box[0] >= x + cols[i] - 0.5; i++) x += cols[i] + (s.gapCol?.v ?? 0); return Math.min(i, cols.length - 1); };
+    const hasFill = cols.some((_, i) => kind(i) === 'fill');
     const stack = rows.map((r) => {
-      if (r.items.length === 1) { f.appendChild(r.items[0].n); return r.items[0]; }
       r.items.sort((a, b) => a.k.box[0] - b.k.box[0]);
+      const first = colOf(r.items[0]);
+      // one item that starts in the first column needs no row (it fills below); otherwise keep the columns
+      if (r.items.length === 1 && (first === 0 || !hasFill)) { f.appendChild(r.items[0].n); return r.items[0]; }
       const row = figma.createFrame(); row.name = 'row'; row.fills = []; row.clipsContent = false; row.layoutMode = 'HORIZONTAL'; f.appendChild(row);
-      for (const m of r.items) row.appendChild(m.n);
-      const lastItem = r.items.at(-1).k;
-      row.primaryAxisAlignItems = Math.abs(lastItem.box[0] + lastItem.box[2] - right) < 1 ? 'SPACE_BETWEEN' : 'MIN';
+      if (hasFill) {
+        // a fill track stands for itself: a fill frame holding its item, or an empty spacer when the row skips it
+        for (let c = 0; c < first; c++) if (kind(c) === 'fill') { const sp = figma.createFrame(); sp.name = `column ${c + 1}`; sp.fills = []; row.appendChild(sp); sp.layoutSizingHorizontal = 'FILL'; sp.resize(sp.width, 1); }
+        for (const m of r.items) {
+          if (kind(colOf(m)) === 'fill' && m.k.box[2] < cols[colOf(m)] - 0.5) { const col = figma.createFrame(); col.name = `column ${colOf(m) + 1}`; col.fills = []; col.clipsContent = false; col.layoutMode = 'HORIZONTAL'; row.appendChild(col); col.appendChild(m.n); col.layoutSizingHorizontal = 'FILL'; col.layoutSizingVertical = 'HUG'; }
+          else row.appendChild(m.n);
+        }
+        row.primaryAxisAlignItems = 'MIN';
+      } else {
+        for (const m of r.items) row.appendChild(m.n);
+        const lastItem = r.items.at(-1).k;
+        row.primaryAxisAlignItems = Math.abs(lastItem.box[0] + lastItem.box[2] - right) < 1 ? 'SPACE_BETWEEN' : 'MIN';
+      }
       row.counterAxisAlignItems = r.items.some((m) => m.k.alignSelf === 'flex-end') ? 'MAX' : ({ center: 'CENTER', end: 'MAX', 'flex-end': 'MAX' }[s.ai] ?? 'MIN');
       if (row.primaryAxisAlignItems === 'MIN' && s.gapCol) { row.itemSpacing = s.gapCol.v; bindNum(row, 'itemSpacing', s.gapCol, rep, `${f.name} column gap`); }
       row.layoutSizingHorizontal = 'FILL'; row.layoutSizingVertical = 'HUG';
-      for (const m of r.items) if ('layoutSizingHorizontal' in m.n && m.n.type !== 'TEXT') { m.n.layoutSizingHorizontal = 'HUG'; m.n.setSharedPluginData('sds', 'sized', 'row'); } // sizeChild runs later and must leave these alone
+      for (const m of r.items) if (m.n.type === 'FRAME' && m.n.layoutMode !== 'NONE') { m.n.resize(Math.max(m.k.box[2], 0.01), Math.max(m.k.box[3], 0.01)); m.n.layoutSizingHorizontal = 'HUG'; m.n.layoutSizingVertical = 'HUG'; m.n.setSharedPluginData('sds', 'sized', 'row'); } // sizeChild runs later and must leave these alone (an icon instance cannot hug)
       const margin = [0, 1, 2, 3].map((i) => r.items.map((m) => m.k.margin?.[i]).find((x) => x?.tok) ?? { v: 0 });
       return { k: { box: [s.box[0], r.top, s.box[2], r.bottom - r.top], margin }, n: row, row: true };
     });
@@ -321,6 +371,19 @@ globalThis.__sds = (() => {
    */
   F.spacing = function (f, s, flow, row, rep) {
     if (flow.length < 2 && !flow.some((m) => m.k.margin)) return;
+    // Margins across the axis (left / right on a child of a column, the Menu separator's `margin: 4px 16px`):
+    // a wrapper that fills the column, padded by the margin tokens. The main-axis step below reuses it.
+    const cross = row ? [0, 2] : [3, 1];
+    for (const m of flow) {
+      const mg = m.k.margin; if (!mg || !cross.some((i) => mg[i]?.tok || mg[i]?.v > 0) || m.n.type === 'TEXT') continue;
+      const w = figma.createFrame(); w.name = `${m.n.name} · margin`; w.fills = []; w.clipsContent = false; w.layoutMode = row ? 'HORIZONTAL' : 'VERTICAL';
+      const idx = f.children.indexOf(m.n); f.insertChild(idx, w); const fillH = m.n.layoutSizingHorizontal === 'FILL'; w.appendChild(m.n);
+      const fields = row ? ['paddingTop', 'paddingBottom'] : ['paddingLeft', 'paddingRight'];
+      cross.forEach((i, j) => { if (!(mg[i]?.tok || mg[i]?.v > 0)) return; w[fields[j]] = mg[i].v; bindNum(w, fields[j], mg[i], rep, `${f.name} ${fields[j]} before ${m.n.name}`); });
+      w.layoutSizingHorizontal = row ? 'HUG' : 'FILL'; w.layoutSizingVertical = row ? 'FILL' : 'HUG'; if (fillH && !row) m.n.layoutSizingHorizontal = 'FILL';
+      rep.layout.push(`${f.name}: side margins of ${m.n.name} drawn as a wrapper with padding`);
+      m.n = w;
+    }
     const a = row ? 0 : 1; // axis index in box
     const end = (m) => m.k.box[a] + m.k.box[a + 2];
     const gapVal = (row ? s.gapCol : s.gapRow)?.v ?? 0;
@@ -332,6 +395,19 @@ globalThis.__sds = (() => {
     if (!sp.length) return;
     const uniform = sp.every((x) => Math.abs(x - sp[0]) < 0.6);
     if (f.primaryAxisAlignItems === 'SPACE_BETWEEN' || f.primaryAxisAlignItems === 'CENTER' && Math.abs(sp[0] - gapVal) < 0.6) return;
+    // Different margins, each its own token (the Dialog's description at space/200, its buttons at space/600):
+    // every child keeps its margin as a bound wrapper padding, and the frame keeps the CSS gap.
+    const wrapWith = (m, field, tok) => {
+      let w = m.n.name.endsWith('· margin') && m.n.type === 'FRAME' ? m.n : null;
+      if (!w) { w = figma.createFrame(); w.name = `${m.n.name} · margin`; w.fills = []; w.clipsContent = false; w.layoutMode = row ? 'HORIZONTAL' : 'VERTICAL'; const idx = f.children.indexOf(m.n); f.insertChild(idx, w); const fillH = m.n.layoutSizingHorizontal === 'FILL'; w.appendChild(m.n); w.layoutSizingHorizontal = fillH ? 'FILL' : 'HUG'; w.layoutSizingVertical = 'HUG'; if (fillH) m.n.layoutSizingHorizontal = 'FILL'; m.n = w; }
+      w[field] = tok.v; bindNum(w, field, tok, rep, '');
+    };
+    const own = sp.map((x, i) => { const mg = flow[i + 1].k.margin?.[side[0]]; return mg?.tok && Math.abs(mg.v + gapVal - x) < 0.6 ? mg : null; });
+    if (!uniform && own.every(Boolean)) {
+      own.forEach((tok, i) => wrapWith(flow[i + 1], row ? 'paddingLeft' : 'paddingTop', tok));
+      rep.layout.push(`${f.name}: each child's margin drawn as a wrapper, bound to its token (${own.map((t) => t.tok).join(', ')})`);
+      return;
+    }
     if (uniform) {
       if (Math.abs(sp[0] - gapVal) < 0.6) return;
       f.itemSpacing = sp[0]; const t = tokenFor(sp[0]);
@@ -343,10 +419,13 @@ globalThis.__sds = (() => {
     if (Math.abs(base - gapVal) > 0.6) { f.itemSpacing = base; const t = tokenFor(base); if (t) bindNum(f, 'itemSpacing', t, rep, ''); else mark(f, 'itemSpacing'); }
     sp.forEach((x, i) => {
       const extra = Math.round((x - base) * 100) / 100; if (extra < 0.6) return;
-      const m = flow[i + 1]; const w = figma.createFrame(); w.name = `${m.n.name} · margin`; w.fills = []; w.clipsContent = false; w.layoutMode = row ? 'HORIZONTAL' : 'VERTICAL';
-      const idx = f.children.indexOf(m.n); f.insertChild(idx, w); const fillH = m.n.layoutSizingHorizontal === 'FILL'; w.appendChild(m.n);
+      const m = flow[i + 1]; let w = m.n.name.endsWith('· margin') && m.n.type === 'FRAME' ? m.n : null; // the cross-axis wrapper, if there is one
+      if (!w) {
+        w = figma.createFrame(); w.name = `${m.n.name} · margin`; w.fills = []; w.clipsContent = false; w.layoutMode = row ? 'HORIZONTAL' : 'VERTICAL';
+        const idx = f.children.indexOf(m.n); f.insertChild(idx, w); const fillH = m.n.layoutSizingHorizontal === 'FILL'; w.appendChild(m.n);
+        w.layoutSizingHorizontal = fillH ? 'FILL' : 'HUG'; w.layoutSizingVertical = 'HUG'; if (fillH) m.n.layoutSizingHorizontal = 'FILL';
+      }
       const field = row ? 'paddingLeft' : 'paddingTop'; w[field] = extra; const t = tokenFor(extra); if (t) bindNum(w, field, t, rep, ''); else { mark(w, field); rep.raw.push(`${f.name}: ${extra}px of margin before ${m.n.name}, no token`); }
-      w.layoutSizingHorizontal = fillH ? 'FILL' : 'HUG'; w.layoutSizingVertical = 'HUG'; if (fillH) m.n.layoutSizingHorizontal = 'FILL';
       rep.layout.push(`${f.name}: margin before ${m.n.name} drawn as a wrapper with ${extra}px padding`);
     });
   };
@@ -358,11 +437,14 @@ globalThis.__sds = (() => {
     if (n.type === 'INSTANCE') { // an instance keeps its own sizing; it only ever stretches
       const fill = pct(k.width) || (row && k.grow) || (!row && stretch && !k.disp?.startsWith('inline')) || k.alignSelf === 'stretch';
       if (fill) n.layoutSizingHorizontal = 'FILL';
+      // …unless the browser squeezed it (flex-shrink on the Image in a horizontal Card): a resized instance, as a designer would
+      else if (Math.abs(n.width - k.box[2]) > 3 || Math.abs(n.height - k.box[3]) > 3) { n.resize(Math.max(k.box[2], 0.01), Math.max(k.box[3], 0.01)); n.setSharedPluginData('sds', 'resized', `${k.box[2]}×${k.box[3]}`); }
       return;
     }
     n.resize(Math.max(k.box[2], 0.01), Math.max(k.box[3], 0.01));
     // width
     if (k.width && !pct(k.width)) n.layoutSizingHorizontal = 'FIXED';
+    else if (!k.width && k['max-width'] && row) n.layoutSizingHorizontal = 'FIXED'; // capped by a max-width (the Footer's four `calc(25% − 18px)` columns): the measured width is the truth
     else if (pct(k.width) || (row && k.grow) || (!row && stretch && !k.disp?.startsWith('inline')) || k.alignSelf === 'stretch') n.layoutSizingHorizontal = 'FILL';
     else n.layoutSizingHorizontal = hasKids ? 'HUG' : 'FIXED';
     // height
@@ -391,6 +473,7 @@ globalThis.__sds = (() => {
 
   // ------------------------------------------------------------ audit
   F.audit = function (node, rep, path = '') {
+    if (!node.visible) return; // a hidden layer (a closed panel) takes no space in either place
     const raw = node.getSharedPluginData('sds', 'box');
     if (raw) {
       const b = JSON.parse(raw);
@@ -497,7 +580,7 @@ globalThis.__sds = (() => {
     return undefined;
   }
   /** The probe sends "one token" values as the bare token name. Give them back their { v, tok } shape. */
-  const VALUE_KEYS = new Set(['placeholderColor', 'gap', 'gapRow', 'gapCol', 'bg', 'shadow', 'backdrop', 'filter', 'opacity', 'ink', 'size', 'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height', 'w', 'color', 'style']);
+  const VALUE_KEYS = new Set(['placeholderColor', 'gap', 'gapRow', 'gapCol', 'bg', 'shadow', 'backdrop', 'filter', 'opacity', 'ink', 'size', 'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height', 'w', 'color', 'style', 'stroke', 'textColor']);
   function expandValues(s) {
     const fix = (x) => (typeof x === 'string' ? { tok: x, v: resolve(x) } : x);
     const walk = (o, key) => {
@@ -526,7 +609,7 @@ globalThis.__sds = (() => {
     const delPath = (o, path) => { const ks = path.split('.'); let cur = o; for (let i = 0; i < ks.length - 1; i++) { cur = cur?.[ks[i]]; if (cur === undefined) return; } delete cur[ks.at(-1)]; };
     const prune = (o) => { // drop what a delete emptied, and trim arrays to their new length
       if (!o || typeof o !== 'object') return o;
-      for (const k of Object.keys(o)) { o[k] = prune(o[k]); if (o[k] && typeof o[k] === 'object' && !Array.isArray(o[k]) && !Object.keys(o[k]).length) delete o[k]; }
+      for (const k of Object.keys(o)) { o[k] = prune(o[k]); if (o[k] && typeof o[k] === 'object' && !Object.keys(o[k]).length) delete o[k]; } // an emptied array too (a variant without radius)
       return Array.isArray(o) ? o.filter((x) => x !== undefined) : o;
     };
     return items.map((it) => {

@@ -1,7 +1,7 @@
 {
   "source": {
-    "takenAt": "2026-09-17",
-    "commit": "eab658c",
+    "takenAt": "2026-09-18",
+    "commit": "045d2e4",
     "variables": {
       "color/white/100": "4a616d096db4",
       "color/white/200": "049ff03966f5",
@@ -780,12 +780,12 @@
       "AccordionItem": {
         "source": "src/ui/primitives/Accordion/Accordion.tsx",
         "hash": "92fa29fec8a0",
-        "contract": "75e2e5a2c5ed"
+        "contract": "eb4049185e0b"
       },
       "Accordion": {
         "source": "src/ui/primitives/Accordion/Accordion.tsx",
         "hash": "92fa29fec8a0",
-        "contract": "f457932b56eb"
+        "contract": "5d9a2ccd6c97"
       },
       "Tab": {
         "source": "src/ui/primitives/Tab/Tab.tsx",
@@ -805,7 +805,7 @@
       "Menu": {
         "source": "src/ui/primitives/Menu/Menu.tsx",
         "hash": "b470039e973b",
-        "contract": "c42ad7b997a9"
+        "contract": "d0a603dfc0c2"
       },
       "Dialog": {
         "source": "src/ui/primitives/Dialog/Dialog.tsx",
@@ -881,6 +881,16 @@
         "source": "src/ui/compositions/Forms/Forms.tsx",
         "hash": "1524bb3f1887",
         "contract": "42a3e8296c97"
+      },
+      "Table": {
+        "source": "src/ui/primitives/Table/Table.tsx",
+        "hash": "176a70df5dd1",
+        "contract": "eb08a06fe510"
+      },
+      "Footer": {
+        "source": "src/ui/compositions/Footers/Footers.tsx",
+        "hash": "99f2224fb7ad",
+        "contract": "76fb00f332c9"
       }
     }
   }

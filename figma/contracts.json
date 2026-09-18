@@ -1131,12 +1131,21 @@
     },
     "mirror": {
       "c": "Accordion",
+      "p": {
+        "defaultExpandedKeys": {
+          "$map": "isExpanded",
+          "true": [
+            "a"
+          ],
+          "false": []
+        }
+      },
       "k": [
         {
           "c": "AccordionItem",
           "p": {
-            "title": "Title",
-            "defaultExpanded": "$isExpanded"
+            "id": "a",
+            "title": "Title"
           },
           "k": [
             "Content"
@@ -1149,7 +1158,7 @@
       "children": "Content"
     },
     "cols": 1,
-    "description": "Contract — src/ui/primitives/Accordion/Accordion.tsx (AccordionItem): title is a prop, children the panel content. isExpanded is React Aria's Disclosure state (defaultExpanded in code). Note: AccordionItem takes isExpanded and isDisabled out of its props and never passes them on, so in code they do nothing."
+    "description": "Contract — src/ui/primitives/Accordion/Accordion.tsx (AccordionItem): title is a prop, children the panel content. isExpanded is the DisclosureGroup's state (defaultExpandedKeys in code: inside a group an item's own defaultExpanded is ignored). Note: AccordionItem takes isExpanded and isDisabled out of its props and never passes them on, so in code they do nothing."
   },
   "Accordion": {
     "page": "Accordion",
@@ -1159,14 +1168,17 @@
     "mirror": {
       "c": "Accordion",
       "p": {
-        "allowsMultipleExpanded": true
+        "allowsMultipleExpanded": true,
+        "defaultExpandedKeys": [
+          "a"
+        ]
       },
       "k": [
         {
           "c": "AccordionItem",
           "p": {
-            "title": "Title",
-            "defaultExpanded": true
+            "id": "a",
+            "title": "Title"
           },
           "k": [
             "Content"
@@ -1182,8 +1194,8 @@
         {
           "c": "AccordionItem",
           "p": {
-            "title": "Title 2",
-            "defaultExpanded": false
+            "id": "b",
+            "title": "Title 2"
           },
           "k": [
             "Content"
@@ -1199,8 +1211,8 @@
         {
           "c": "AccordionItem",
           "p": {
-            "title": "Title 3",
-            "defaultExpanded": false
+            "id": "c",
+            "title": "Title 3"
           },
           "k": [
             "Content"
@@ -1537,6 +1549,54 @@
         "description": "$text:.description",
         "hasDescription": "$has:.description"
       }
+    },
+    "img.image": {
+      "set": "Image",
+      "props": {
+        "variant": "$class:image-variant-",
+        "aspectRatio": "$class:image-aspect-ratio-",
+        "size": "$class:image-size-"
+      }
+    },
+    ".avatar-block": {
+      "set": "AvatarBlock",
+      "props": {}
+    },
+    ".text-price": {
+      "set": "TextPrice",
+      "props": {
+        "size": "$class:text-price-size-"
+      }
+    },
+    ".text-content-heading": {
+      "set": "TextContentHeading",
+      "props": {}
+    },
+    ".text-content-title": {
+      "set": "TextContentTitle",
+      "props": {}
+    },
+    ".notification": {
+      "set": "Notification",
+      "props": {
+        "variant": "$class:notification-variant-"
+      }
+    },
+    ".accordion-item": {
+      "set": "AccordionItem",
+      "props": {
+        "isExpanded": "$attr:data-expanded"
+      }
+    },
+    ".menu-item": {
+      "set": "MenuItem",
+      "props": {
+        "isDisabled": "$attr:data-disabled"
+      }
+    },
+    ".logo": {
+      "set": "Logo",
+      "props": {}
     }
   },
   "MenuItem": {
@@ -1625,143 +1685,119 @@
       },
       "k": [
         {
-          "c": "MenuHeader",
+          "c": "MenuItem",
+          "p": {
+            "id": "a"
+          },
           "k": [
             {
-              "c": "MenuHeading",
-              "k": [
-                "Heading"
-              ]
-            }
-          ]
-        },
-        {
-          "c": "MenuSection",
-          "k": [
-            {
-              "c": "MenuItem",
-              "p": {
-                "id": "a"
-              },
-              "k": [
-                {
-                  "c": "IconStar"
-                },
-                {
-                  "c": "MenuLabel",
-                  "k": [
-                    "Label"
-                  ]
-                },
-                {
-                  "c": "MenuDescription",
-                  "k": [
-                    "Description"
-                  ]
-                },
-                {
-                  "c": "MenuShortcut",
-                  "k": [
-                    "⌘K"
-                  ]
-                }
-              ],
-              "inst": {
-                "set": "MenuItem",
-                "props": {
-                  "label": "Label",
-                  "description": "Description"
-                }
-              }
+              "c": "IconStar"
             },
             {
-              "c": "MenuItem",
-              "p": {
-                "id": "b"
-              },
+              "c": "MenuLabel",
               "k": [
-                {
-                  "c": "IconStar"
-                },
-                {
-                  "c": "MenuLabel",
-                  "k": [
-                    "Label 2"
-                  ]
-                },
-                {
-                  "c": "MenuDescription",
-                  "k": [
-                    "Description"
-                  ]
-                },
-                {
-                  "c": "MenuShortcut",
-                  "k": [
-                    "⌘K"
-                  ]
-                }
-              ],
-              "inst": {
-                "set": "MenuItem",
-                "props": {
-                  "label": "Label 2",
-                  "description": "Description"
-                }
-              }
+                "Label"
+              ]
+            },
+            {
+              "c": "MenuDescription",
+              "k": [
+                "Description"
+              ]
+            },
+            {
+              "c": "MenuShortcut",
+              "k": [
+                "⌘K"
+              ]
             }
-          ]
+          ],
+          "inst": {
+            "set": "MenuItem",
+            "props": {
+              "label": "Label",
+              "description": "Description"
+            }
+          }
+        },
+        {
+          "c": "MenuItem",
+          "p": {
+            "id": "b"
+          },
+          "k": [
+            {
+              "c": "IconStar"
+            },
+            {
+              "c": "MenuLabel",
+              "k": [
+                "Label 2"
+              ]
+            },
+            {
+              "c": "MenuDescription",
+              "k": [
+                "Description"
+              ]
+            },
+            {
+              "c": "MenuShortcut",
+              "k": [
+                "⌘K"
+              ]
+            }
+          ],
+          "inst": {
+            "set": "MenuItem",
+            "props": {
+              "label": "Label 2",
+              "description": "Description"
+            }
+          }
         },
         {
           "c": "MenuSeparator"
         },
         {
-          "c": "MenuSection",
+          "c": "MenuItem",
+          "p": {
+            "id": "c"
+          },
           "k": [
             {
-              "c": "MenuItem",
-              "p": {
-                "id": "c"
-              },
+              "c": "IconStar"
+            },
+            {
+              "c": "MenuLabel",
               "k": [
-                {
-                  "c": "IconStar"
-                },
-                {
-                  "c": "MenuLabel",
-                  "k": [
-                    "Label 3"
-                  ]
-                },
-                {
-                  "c": "MenuDescription",
-                  "k": [
-                    "Description"
-                  ]
-                },
-                {
-                  "c": "MenuShortcut",
-                  "k": [
-                    "⌘K"
-                  ]
-                }
-              ],
-              "inst": {
-                "set": "MenuItem",
-                "props": {
-                  "label": "Label 3",
-                  "description": "Description"
-                }
-              }
+                "Label 3"
+              ]
+            },
+            {
+              "c": "MenuDescription",
+              "k": [
+                "Description"
+              ]
+            },
+            {
+              "c": "MenuShortcut",
+              "k": [
+                "⌘K"
+              ]
             }
-          ]
+          ],
+          "inst": {
+            "set": "MenuItem",
+            "props": {
+              "label": "Label 3",
+              "description": "Description"
+            }
+          }
         }
       ]
     },
-    "text": {
-      "heading": "Heading"
-    },
-    "description": "Contract — src/ui/primitives/Menu/Menu.tsx (Menu, MenuHeader, MenuHeading, MenuSection, MenuSeparator): the list that MenuButton or MenuTrigger opens. Items are real MenuItem instances. The popover around it (position, shadow placement) only exists at runtime."
+    "description": "Contract — src/ui/primitives/Menu/Menu.tsx (Menu, MenuSeparator): the list that MenuButton or MenuTrigger opens, composed as upstream's own story does. Items are real MenuItem instances. MenuSection and MenuHeader are plain divs: inside a Menu the React Aria collection drops them and everything in them, so they are not mirrored. The popover around it (position, shadow placement) only exists at runtime."
   },
   "Dialog": {
     "page": "Dialog",
@@ -2116,10 +2152,10 @@
       "p": {
         "$props": true,
         "padding": {
-          "$map": "padding",
           "0": null,
           "600": "600",
-          "800": "800"
+          "800": "800",
+          "$map": "padding"
         },
         "asset": {
           "c": "Image",
@@ -2400,7 +2436,8 @@
       "description": "A multi-line text field.",
       "gaps": [
         "The resize grip is browser chrome, not drawn. isResizable has no visible effect at rest.",
-        "Line height 1.4 comes from --global-line-height-paragraph, a raw value in code."
+        "Line height 1.4 comes from --global-line-height-paragraph, a raw value in code.",
+        "The height comes from the browser's default rows=2: fixed at 68.8 here."
       ]
     },
     "Select": {
@@ -2468,22 +2505,25 @@
     "Accordion": {
       "description": "AccordionItem opens and closes; Accordion groups items.",
       "gaps": [
-        "The panel's height animates in code. Open shows the panel, closed has none.",
-        "AccordionItem drops isExpanded and isDisabled in code (they are taken out of the props and never passed on). isExpanded here maps to defaultExpanded."
+        "The panel's height animates in code. Open shows the panel, closed has none (a hidden layer).",
+        "AccordionItem drops isExpanded and isDisabled in code (they are taken out of the props and never passed on). Inside an Accordion the group owns the state: isExpanded here is defaultExpandedKeys on the group in code.",
+        "The open panel is `margin: 0 auto` in code: a centring wrapper here."
       ]
     },
     "Tabs": {
       "description": "Tab is one tab; Tabs is the list with a panel.",
       "gaps": [
         "Hover, pressed and focus are states in code (data-hovered …), not props, so they are not variants.",
-        "The selection is set on the Tab here and on Tabs (selectedKey) in code."
+        "The selection is set on the Tab here and on Tabs (selectedKey) in code.",
+        "A disabled Tab has no style of its own in code, so isDisabled=true looks like the default on purpose."
       ]
     },
     "Menu": {
       "description": "The menu list that MenuButton or MenuTrigger opens, and its item.",
       "gaps": [
         "The popover around the menu is positioned at runtime.",
-        "The highlighted (keyboard focus / hover) item is a state, not drawn."
+        "The highlighted (keyboard focus / hover) item is a state, not drawn.",
+        "MenuSection and MenuHeader are plain divs in code; inside a Menu the React Aria collection drops them, so they are not mirrored. The item's icon sits in the grid's 1fr column, which pushes the label to the right: mirrored as it renders."
       ]
     },
     "Dialog": {
@@ -2497,7 +2537,8 @@
       "description": "A small popover with an arrow.",
       "gaps": [
         "Placement is a prop, but where the tooltip lands is computed at runtime.",
-        "max-width is calc(32rem / 2) = 256px: raw."
+        "max-width is calc(32rem / 2) = 256px: raw.",
+        "The arrow is two vectors: the border colour under the background colour, rotated per placement."
       ]
     },
     "Pagination": {
@@ -2516,7 +2557,7 @@
     "Logo": {
       "description": "The logo, as the code draws it.",
       "gaps": [
-        "An SVG in code, imported as vectors. Its colours are raw."
+        "An SVG in code, imported as vectors and rescaled to size/icon/small so the stroke scales with it. The stroke is bound to color/icon/default/default, as `--logo-color` resolves in code."
       ]
     },
     "Image": {
@@ -2531,7 +2572,8 @@
       "gaps": [
         "Card's stroke is an inset box-shadow in code: an inside stroke here.",
         "On phones every card goes vertical (useMediaQuery). Drawn at desktop width.",
-        "TextListItem asks for --sds-font-body, which theme.css never defines, so list items inherit their font."
+        "TextListItem asks for --sds-font-body, which theme.css never defines, so list items inherit their font.",
+        "In a horizontal Card the Image is squeezed by flex in code; the instance is resized to match. A brand card's TextPrice takes the on-brand colour as an override."
       ]
     },
     "Form": {
@@ -2551,7 +2593,8 @@
       "gaps": [
         "The content (link lists, social links) is hard-coded in the component, not passed in. Change it in code.",
         "Below the tablet breakpoint the lists get tighter (useMediaQuery). Drawn at desktop width.",
-        "The Flex grid (type=quarter) is percentage widths in code: drawn at the measured widths for a 1200px page."
+        "The Flex grid (type=quarter) is percentage widths in code: drawn at the measured widths for a 1200px page.",
+        "The four columns are max-width: calc(25% − 18px) in code: fixed at 270 for a 1200px page."
       ]
     }
   },

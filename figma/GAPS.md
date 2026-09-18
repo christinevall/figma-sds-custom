@@ -49,6 +49,11 @@ Found by the probe. In Figma they are raw numbers, and the node is marked
 | TextList | `padding-left: 1rem` | 16 | keep |
 | Icons | `strokeWidth="1.6"` on a 16-unit viewBox, scaling with the icon | 1.6, and it does **not** scale when an instance is resized | keep. Use the Scale tool (K), or accept thinner strokes on large icons |
 | TextPrice | currency `font-size: 0.6em` | Raw size | keep |
+| Textarea | No height: the browser sizes a `<textarea>` by its `rows` (the default is 2) | Fixed at 68.8 | keep. Code: a height token, or `rows` as a prop |
+| Accordion chevron, Notification icon, Logo | An inline `<svg>` inside a block sits in a line box taller than itself (24 for a 20px icon) | The span has that fixed height; the icon stays at its top | keep. It is what the browser draws |
+| Tooltip arrow | Two `<svg>` paths, filled from CSS, rotated per placement, the inner one shifted by `1.5 × stroke-border` | Two vectors with the fills bound, rotated, at the measured offsets | keep |
+| Logo | An inline SVG whose paths stroke with `var(--logo-color)` | The vector, rescaled to `size/icon/small` so the stroke scales with it, stroke bound to `color/icon/default/default` | keep |
+| Image inside a horizontal Card | `flex-shrink` squeezes the 160px image to 108 / 93 / 87px | The Image instance is resized to the measured width (marked `sds/resized`) | keep. Faithful: the code squeezes it too |
 
 ## Things Figma has no concept for
 
@@ -69,6 +74,15 @@ Found by the probe. In Figma they are raw numbers, and the node is marked
 | Accordion panel height animates; `max-height: 0` when closed | Open shows the panel, closed has none | Motion is not in the contract | keep |
 | `useMediaQuery`: Card goes vertical on phones, PaginationList hides, TextContentTitle drops a size | Desktop only | Breakpoint behaviour | keep |
 | An image | A placeholder fill (`color/background/default/tertiary`), node marked `image` | The plugin cannot load a local file | keep. Drop your own picture on it |
+| `margin: 0 auto` on a child narrower than its column (the open Accordion panel) | A wrapper frame that fills the column and centres it (`… · margin`) | Figma has no per-child alignment; `layoutAlign` is deprecated and ignored | keep |
+| `margin-left` / `margin-right` on a child of a column (the Menu separator's `space/400`) | A wrapper that fills the column, its side padding bound to the margin tokens | Same: Figma has no margin | keep |
+| Adjacent children with different margins, each a token (the Dialog: description `space/200`, buttons `space/600`) | Each child in a wrapper whose top padding is bound to its own token; the frame keeps the CSS gap | One frame has one item spacing | keep |
+| AvatarGroup overlaps avatars with `margin-left: calc(-space-300 + gap)` and keeps `gap: space-300` before the +n badge | An `avatars` frame whose item spacing is bound to the spacing token (`size/space/200` … `size/space/negative-300`), inside the group frame at `space/300`. Negative variants get `effects/shadows/drop-shadow-200` on each avatar, as the CSS does | The net distance between avatars *is* the token; a calc() is not | keep |
+| A `<textarea>`'s text starts at the top whatever `align-items` says | Top-aligned | `align-items: center` on a textarea does nothing in a browser | keep |
+| An inline element next to text in a block (`<sup>$</sup>50` in TextPrice) | A row, the children at the line's top | Inline formatting has no auto-layout equivalent; MIN is 2px off the raised `<sup>` | keep |
+| A positioned child with `z-index` (the Tooltip arrow over the dialog border) | Moved to the top of its parent | Layer order is z-order | keep |
+| A flex child that is neither sized nor `flex-grow` but takes what is left of the row (the content of a horizontal Card, wrapping its text) | Fill | Flex shrinks both children; Figma needs one to fill | keep |
+| The Dialog sheet is `width: 100%` of the viewport | Fixed at 1280, the mirror's viewport | A root has no container | keep |
 
 ## Properties
 
@@ -90,8 +104,7 @@ Found by the probe. In Figma they are raw numbers, and the node is marked
 | `Link`, `TextLink` | `font/body-link` |
 | `Flex`, `Grid`, `Section` (`src/ui/layout`) | Auto layout *is* these. Upstream says the same in its README |
 | `Fieldset`, `Legend`, `FieldGroup`, `Form` | Layout only |
-| `Table` | `display: table`. Auto layout has no table model; drawing it by hand would be the first thing in this file not generated from the code. Open |
-| `Header`, `Footer`, `Hero`, `Panel` | Page furniture tied to demo data and auth state (`useAuth`). Open |
+| `Header`, `Hero`, `Panel` | Page furniture tied to demo data and auth state (`useAuth`). Table and Footer are mirrored (see above); these three are open |
 | `src/figma/**` (Code Connect) | They map to node ids in **Figma's** Community file, not this one. Pointing them here means editing upstream files |
 
 ## Found in upstream's code while mirroring
@@ -105,5 +118,9 @@ Not ours to fix here. Each is worth an issue on `figma/sds`.
 | `Accordion.tsx` | `AccordionItem` takes `isExpanded` and `isDisabled` out of its props and never passes them on. They do nothing; `defaultExpanded` works because it travels in `...props` |
 | `Tag.tsx` | `Tag` spreads `...props` and then sets `className`, so a `className` passed to `Tag` is thrown away |
 | `checkbox.css` | `grid-template-columns: var(--sds-size-space-300) 1fr` for a 16px box (see above) |
+| `tab.css` | No `[data-disabled]` rule: a disabled Tab looks exactly like an enabled one. The Figma variant `isDisabled=true` is identical on purpose |
+| `menu.css` | `.menu-item` is `grid-template-columns: 1fr auto` and puts the icon in the first, `1fr`, column. With an icon the label and description are pushed to the far right of the item (label at x=160 in a 264px item). Mirrored as it renders |
+| `Menu.tsx` | `MenuSection` and `MenuHeader` are plain `<div>`s. Inside a React Aria `Menu` the collection ignores them and everything in them, so a Menu with sections renders empty. Upstream's own story does not use them; neither does the mirror |
+| `Accordion.tsx` | Inside a `DisclosureGroup` an item's `defaultExpanded` is ignored (the group owns the state through `defaultExpandedKeys`), so the only way to open an `AccordionItem` in an `Accordion` is a key on the group |
 | Type check | On a clean `npm ci` at commit `6afa4b4`, `npx tsc --noEmit` reports 7 errors, all in upstream files (`Button.tsx` 4, `AnchorOrButton.tsx` 2, `Tag.figma.ts` 1). Their `app:build` script starts with `tsc`, so it stops there. Storybook is not affected. The course files add none |
 | Storybook | Upstream is on Storybook 8.6. Upgraded here to 10 (2026-09-17) for the MCP server; see `docs/decisions.md` |

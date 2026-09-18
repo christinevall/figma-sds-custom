@@ -5,7 +5,7 @@
 | | |
 | --- | --- |
 | **Live Storybook** | [christinevall.github.io/figma-sds-custom](https://christinevall.github.io/figma-sds-custom/), no install needed. Updates on every push to `main` |
-| **Figma library** | [Figma SDS, customized](https://www.figma.com/design/e24pu4u3xplVzYuBpTR1Ti/Figma-sds), generated from this code. In progress: foundations, 287 icons and 17 components so far |
+| **Figma library** | [Figma SDS, customized](https://www.figma.com/design/e24pu4u3xplVzYuBpTR1Ti/Figma-sds), generated from this code: variables with Light and Dark, text and effect styles, 287 icons, 46 components in 223 variants, a Cover with the tokens at a glance |
 | **Original** | [github.com/figma/sds](https://github.com/figma/sds) and Figma's [Community file](https://www.figma.com/community/file/1380235722331273046) |
 
 ## Start here
@@ -118,7 +118,7 @@ npm run storybook          # http://localhost:6004 · MCP: http://localhost:6004
 
 ## Not done / not checked
 
-- **The Figma library is in progress:** tokens, text and effect styles, 287 icons and 17 components are built; about 24 components and the Cover page are not yet.
+- **The Figma library is complete** (46 components, the Cover, the Tokens sheet), but it is not published to the Figma Community yet, and the images in it are placeholder fills: the plugin cannot load pictures from a local file.
 - **Where Figma cannot do what the code does** is listed in [`figma/GAPS.md`](figma/GAPS.md), with four bugs found in Figma's code along the way.
 - **`npx tsc` reports 7 type errors in Figma's own code**, so `npm run build` (the app) stops. Storybook is not affected.
 - **Code Connect** files ship with SDS but are not connected here: they need an Organization or Enterprise plan.

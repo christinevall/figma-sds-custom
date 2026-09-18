@@ -21,8 +21,10 @@ globalThis.__cover = (() => {
     FX = new Map((await figma.getLocalEffectStylesAsync()).map((s) => [s.name, s]));
     colorCol = (await figma.variables.getLocalVariableCollectionsAsync()).find((c) => c.name === 'Color');
     lightId = colorCol.modes.find((m) => m.name === 'Light').modeId; darkId = colorCol.modes.find((m) => m.name === 'Dark').modeId;
-    for (const s of TS.values()) await figma.loadFontAsync({ family: s.fontName.family, style: s.fontName.style });
-    for (const st of ['Regular', 'Medium', 'Semi Bold', 'Bold']) await figma.loadFontAsync({ family: 'Inter', style: st });
+    // load each font once: while the Figma window is hidden loadFontAsync stalls for half a minute every few calls
+    const loaded = (globalThis.__fontsDone ??= new Set()); const lf = async (fn) => { const k = `${fn.family}/${fn.style}`; if (loaded.has(k)) return; await figma.loadFontAsync(fn); loaded.add(k); };
+    for (const s of TS.values()) await lf({ family: s.fontName.family, style: s.fontName.style });
+    for (const st of ['Regular', 'Medium', 'Semi Bold', 'Bold']) await lf({ family: 'Inter', style: st });
     let page = figma.root.children.find((p) => p.name === 'Cover');
     await figma.setCurrentPageAsync(page);
     return page;
@@ -89,7 +91,7 @@ globalThis.__cover = (() => {
     await text(head, 'Figma SDS, customized', 'font/title-hero');
     await text(head, 'Figma’s Simple Design System, exactly as Figma publishes the code. This file was empty: its variables, styles, icons and components were generated from that code, so every name here is a name in the repository.', 'font/subtitle', 'color/text/default/secondary');
     const links = grid(head, 'Links');
-    for (const [eye, t, sub, url] of [['Live docs', 'Storybook ↗', 'localhost:6004 · npx storybook dev -p 6004', null], ['Upstream code', 'github.com/figma/sds ↗', 'MIT, by Figma. Not one of their files is edited here.', 'https://github.com/figma/sds'], ['Figma Community', 'Link coming soon', 'This file, once it is published', null]]) {
+    for (const [eye, t, sub, url] of [['Live docs', 'Storybook ↗', 'christinevall.github.io/figma-sds-custom · locally: npm run storybook, port 6004', 'https://christinevall.github.io/figma-sds-custom/'], ['Upstream code', 'github.com/figma/sds ↗', 'MIT, by Figma. Not one of their files is edited here.', 'https://github.com/figma/sds'], ['Code', 'github.com/christinevall/figma-sds-custom ↗', 'This fork: Figma’s code plus the course files (the mirror, Storybook 10, the notes)', 'https://github.com/christinevall/figma-sds-custom']]) {
       const c = await card(links, eye, t, sub); third(c); if (url) c.findAll((x) => x.type === 'TEXT')[1].hyperlink = { type: 'URL', value: url };
     }
     const glance = box('At a glance', 'row', { parent: f, gap: 'size/space/600', wrap: true });
@@ -110,7 +112,7 @@ globalThis.__cover = (() => {
     }
     const stack = await section(f, 'The stack', 'What Figma chose for SDS. Nothing was swapped.');
     const stg = grid(stack, 'Stack');
-    for (const [ver, t, body] of [['1.10', 'React Aria Components', 'Adobe’s unstyled, accessible primitives: behaviour, keyboard and ARIA. States arrive as data attributes.'], ['18 · 5', 'React + TypeScript', 'The components, fully typed.'], ['6', 'Vite', 'Build and dev server.'], ['Custom properties', 'Plain CSS', 'One stylesheet per component, nested rules, every value a token routed through a local variable.'], ['Figma → CSS', 'Token script', 'Upstream pulls variables out of their Figma file into theme.css. Here theme.css is the source and Figma follows.'], ['8.6', 'Storybook', 'Figma’s stories, plus Getting started and Foundations from the course. Port 6004.']]) { const c = await card(stg, ver, t, body); third(c); }
+    for (const [ver, t, body] of [['1.10', 'React Aria Components', 'Adobe’s unstyled, accessible primitives: behaviour, keyboard and ARIA. States arrive as data attributes.'], ['18 · 5', 'React + TypeScript', 'The components, fully typed.'], ['6', 'Vite', 'Build and dev server.'], ['Custom properties', 'Plain CSS', 'One stylesheet per component, nested rules, every value a token routed through a local variable.'], ['Figma → CSS', 'Token script', 'Upstream pulls variables out of their Figma file into theme.css. Here theme.css is the source and Figma follows.'], ['10', 'Storybook', 'Figma’s stories, plus Getting started, Foundations and a Code page per group from the course. Upgraded from 8.6 for the MCP server. Port 6004.']]) { const c = await card(stg, ver, t, body); third(c); }
     const sync = await section(f, 'How it stays in sync', 'One source, two outputs. Code is the source. Figma follows.');
     const flow = box('Flow', 'row', { parent: sync, gap: 'size/space/400', align: 'CENTER', wrap: true });
     const chip = async (eye, t, sub, strong) => { const c = box(`Step/${t}`, 'col', { parent: flow, hug: true, bg: strong ? 'color/background/brand/tertiary' : 'color/background/default/default', border: strong ? 'color/border/brand/default' : 'color/border/default/default', radius: 'size/radius/200', pad: 'size/space/400', gap: 'size/space/100' }); if (eye) await text(c, eye, 'font/body-code', 'color/text/default/tertiary', { upper: true, hug: true }); await text(c, t, 'font/body-strong', 'color/text/default/default', { hug: true }); if (sub) await text(c, sub, 'font/body-small', 'color/text/default/secondary', { hug: true }); return c; };
@@ -121,6 +123,8 @@ globalThis.__cover = (() => {
     await chip(null, 'This library', 'components, icons, variables, styles');
     const note = box('Check', 'row', { parent: sync, hug: true, bg: 'color/background/positive/tertiary', radius: 'size/radius/200', pad: 'size/space/400', gap: 'size/space/200' });
     await text(note, '✓  check-upstream.mjs compares the code with the snapshot taken when this file was built, and names what changed.', 'font/body-base', 'color/text/positive/default', { hug: true });
+    const cc = box('Code Connect', 'row', { parent: sync, bg: 'color/background/default/default', border: 'color/border/default/default', radius: 'size/radius/200', pad: 'size/space/400', gap: 'size/space/200' });
+    await text(cc, 'Code Connect: SDS ships the mapping files (src/figma), but they point at Figma’s own Community file and need an Organization or Enterprise plan, so they are not used on this Pro file. Every component and property here already carries the code’s name, which is most of what Code Connect would add.', 'font/body-base', 'color/text/default/secondary', { fill: true });
     const tiers = await section(f, 'Two token tiers', 'A primitive says what a value is. A semantic token says what it is for. Only the second survives a rebrand.');
     const tg = grid(tiers, 'Tiers');
     for (const [eye, t, body, tok, code] of [['Tier 1 · primitives', 'What a value is', 'Ramps from 100 to 1000, the type scale, the weights. Hidden from the pickers: components never use them directly.', 'color/brand/800', '--sds-color-brand-800'], ['Tier 2 · semantic', 'What a value is for', 'background, text, icon, border, then the role, then the variant. Each points at a primitive, once for Light and once for Dark.', 'color/background/brand/default', '--sds-color-background-brand-default']]) {
@@ -233,7 +237,7 @@ globalThis.__cover = (() => {
     const glow = figma.createEllipse(); glow.name = 'Glow'; glow.resize(1100, 800); glow.x = 900; glow.y = 420; glow.fills = [fill('color/background/neutral/default')]; glow.opacity = 0.35; glow.effects = [{ type: 'LAYER_BLUR', blurType: 'NORMAL', radius: 240, visible: true }]; f.appendChild(glow);
     const raw = async (chars, size, style, color, x, y, w) => { const t = figma.createText(); t.fontName = { family: 'Inter', style }; t.characters = chars; t.fontSize = size; t.fills = [fill(color)]; f.appendChild(t); t.x = x; t.y = y; if (w) { t.textAutoResize = 'HEIGHT'; t.resize(w, t.height); } return t; };
     const dot = figma.createEllipse(); dot.resize(14, 14); dot.x = 120; dot.y = 127; dot.fills = [fill('color/background/positive/default')]; f.appendChild(dot);
-    const eyebrow = await raw('REACT ARIA  ·  REACT 18  ·  STORYBOOK 8  ·  FIGMA', 20, 'Medium', 'color/text/default/secondary', 150, 121); eyebrow.letterSpacing = { unit: 'PERCENT', value: 12 };
+    const eyebrow = await raw('REACT ARIA  ·  REACT 18  ·  STORYBOOK 10  ·  FIGMA', 20, 'Medium', 'color/text/default/secondary', 150, 121); eyebrow.letterSpacing = { unit: 'PERCENT', value: 12 };
     const title = await raw('Figma SDS,\ncustomized', 104, 'Semi Bold', 'color/text/default/default', 112, 250, 1000); title.lineHeight = { unit: 'PERCENT', value: 108 }; title.letterSpacing = { unit: 'PERCENT', value: -2 };
     await raw('Figma’s SDS, rebuilt from its code.\nEvery name in this file is a name in the repository.', 36, 'Regular', 'color/text/default/secondary', 118, 520, 900);
     const chip = box('By moonlearning.io', 'row', { bg: 'color/background/default/secondary', border: 'color/border/default/default', radius: 'size/radius/full', gap: 'size/space/300', align: 'CENTER' }); f.appendChild(chip); chip.x = 120; chip.y = 690; chip.paddingLeft = chip.paddingRight = 28; chip.paddingTop = chip.paddingBottom = 16; chip.layoutSizingHorizontal = 'HUG';
@@ -243,7 +247,7 @@ globalThis.__cover = (() => {
     // the other two sheets, as pictures
     for (const [name, px, py, pw] of [['Tokens', 1136, 68, 684], ['Overview', 1367, 250, 655]]) {
       const src = page.findOne((z) => z.name === name && z.parent === page); if (!src) continue;
-      const bytes = await src.exportAsync({ format: 'PNG', constraint: { type: 'WIDTH', value: pw * 2 } });
+      const bytes = await src.exportAsync({ format: 'PNG', constraint: src.height * pw * 2 / src.width > 4000 ? { type: 'HEIGHT', value: 4000 } : { type: 'WIDTH', value: pw * 2 } }); // createImage refuses anything over 4096px
       const img = figma.createImage(bytes); const r = figma.createRectangle(); r.name = `${name} (picture)`; r.resize(pw, Math.round(pw * src.height / src.width)); r.x = px; r.y = py; r.cornerRadius = 12;
       r.fills = [{ type: 'IMAGE', imageHash: img.hash, scaleMode: 'FILL' }]; const fxs = FX.get('effects/shadows/drop-shadow-600'); if (fxs) await r.setEffectStyleIdAsync(fxs.id); f.appendChild(r);
     }
